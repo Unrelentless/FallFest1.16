@@ -12,6 +12,7 @@ import net.minecraft.block.Blocks;
 import net.minecraft.block.LeavesBlock;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.ai.RangedAttackMob;
 import net.minecraft.entity.ai.goal.FollowTargetGoal;
 import net.minecraft.entity.ai.goal.LookAroundGoal;
 import net.minecraft.entity.ai.goal.ProjectileAttackGoal;
@@ -38,8 +39,8 @@ import net.minecraft.world.World;
 
 public class GhostEntity extends SnowGolemEntity {
 
-    private static Potion[] goodPotions = getPotionsForType(StatusEffectType.BENEFICIAL);
-    private static Potion[] badPotions = getPotionsForType(StatusEffectType.HARMFUL);
+    private Potion[] goodPotions = getPotionsForType(StatusEffectType.BENEFICIAL);
+    private Potion[] badPotions = getPotionsForType(StatusEffectType.HARMFUL);
 
     public static final BooleanProperty FALLED = BooleanProperty.of("falled");
 
@@ -59,7 +60,7 @@ public class GhostEntity extends SnowGolemEntity {
     }
 
     protected void initGoals() {
-        this.goalSelector.add(1, new ProjectileAttackGoal(this, 1.25D, 120, 15.0F));
+        this.goalSelector.add(1, new GhostProjectileAttackGoal(this, 1.25D, 60, 15.0F));
         this.goalSelector.add(3, new WanderAroundFarGoal(this, 1.0D, 1.0000001E-5F));
         this.goalSelector.add(4, new LookAroundGoal(this));
         this.targetSelector.add(1,
@@ -108,10 +109,11 @@ public class GhostEntity extends SnowGolemEntity {
             boolean shouldUseBadPotion = random == 0.5;
 
             int randomIndex = (int) (Math.random()
-                    * (shouldUseBadPotion ? GhostEntity.badPotions.length : GhostEntity.goodPotions.length));
+                    * (shouldUseBadPotion ? this.badPotions.length : this.goodPotions.length));
 
-            Potion potion = shouldUseBadPotion ? GhostEntity.badPotions[randomIndex]
-                    : GhostEntity.goodPotions[randomIndex];
+            System.out.println(randomIndex);
+
+            Potion potion = shouldUseBadPotion ? this.badPotions[randomIndex] : this.goodPotions[randomIndex];
             PotionEntity potionEntity = new PotionEntity(this.world, this);
 
             potionEntity.setItem(PotionUtil.setPotion(new ItemStack(Items.SPLASH_POTION), potion));
@@ -155,6 +157,21 @@ public class GhostEntity extends SnowGolemEntity {
                     }
                 }
             }
+        }
+    }
+
+    private class GhostProjectileAttackGoal extends ProjectileAttackGoal {
+
+        private final MobEntity mob;
+
+        public GhostProjectileAttackGoal(RangedAttackMob mob, double mobSpeed, int intervalTicks, float maxShootRange) {
+            super(mob, mobSpeed, intervalTicks, maxShootRange);
+            this.mob = (MobEntity) mob;
+        }
+
+        @Override
+        public boolean shouldContinue() {
+            return !this.mob.world.isDay();
         }
     }
 }
