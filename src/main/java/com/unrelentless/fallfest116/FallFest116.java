@@ -29,7 +29,8 @@ public class FallFest116 implements ModInitializer {
 					.dimensions(EntityDimensions.fixed(0.7F, 1.9F)).build());
 
 	public static final FallenGrassBlock FALLEN_GRASS_BLOCK = new FallenGrassBlock(
-			FabricBlockSettings.of(Material.LEAVES).strength(0.2F).sounds(BlockSoundGroup.GRASS).nonOpaque());
+			FabricBlockSettings.of(Material.LEAVES).strength(0.2F).sounds(BlockSoundGroup.GRASS).nonOpaque()
+					.blockVision((state, world, pos) -> false));
 
 	@Override
 	public void onInitialize() {

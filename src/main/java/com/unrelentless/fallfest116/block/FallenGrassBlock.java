@@ -1,7 +1,5 @@
 package com.unrelentless.fallfest116.block;
 
-import org.apache.commons.compress.archivers.dump.DumpArchiveEntry.TYPE;
-
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -10,7 +8,6 @@ import net.minecraft.entity.ai.pathing.NavigationType;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.EnumProperty;
-import net.minecraft.state.property.IntProperty;
 import net.minecraft.util.StringIdentifiable;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
@@ -88,7 +85,7 @@ public class FallenGrassBlock extends Block {
     }
 
     public VoxelShape getCollisionShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
-        return Block.createCuboidShape(0.0D, 0.0D, 0.0D, 16.0D, 2.0D, 16.0D);
+        return VoxelShapes.empty();
     }
 
     public VoxelShape getSidesShape(BlockState state, BlockView world, BlockPos pos) {
