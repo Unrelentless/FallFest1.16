@@ -10,6 +10,8 @@ import net.fabricmc.fabric.api.client.rendering.v1.ColorProviderRegistry;
 import net.minecraft.client.color.world.BiomeColors;
 import net.minecraft.client.color.world.FoliageColors;
 import net.minecraft.client.render.RenderLayer;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.BlockRenderView;
 import net.fabricmc.api.EnvType;
 
 @Environment(EnvType.CLIENT)
@@ -28,6 +30,12 @@ public class FallFest116Client implements ClientModInitializer {
                     : FoliageColors.getDefaultColor();
             int shiftedColour = 0xFF0000 | colour;
             return shiftedColour;
+        }, FallFest116.FALLEN_GRASS_BLOCK);
+
+        ColorProviderRegistry.ITEM.register((stack, tintIndex) -> {
+            return ColorProviderRegistry.BLOCK.get(FallFest116.FALLEN_GRASS_BLOCK).getColor(
+                    FallFest116.FALLEN_GRASS_BLOCK.getDefaultState(), (BlockRenderView) null, (BlockPos) null,
+                    tintIndex);
         }, FallFest116.FALLEN_GRASS_BLOCK);
     }
 }

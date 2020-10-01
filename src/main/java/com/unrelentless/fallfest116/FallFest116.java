@@ -39,8 +39,5 @@ public class FallFest116 implements ModInitializer {
 				new BlockItem(FALLEN_GRASS_BLOCK, new Item.Settings().group(ItemGroup.BUILDING_BLOCKS)));
 
 		FabricDefaultAttributeRegistry.register(GHOST, GhostEntity.createGhostAttributes());
-
-		// .ticksRandomly()
-		// .allowsSpawning(Blocks::canSpawnOnLeaves).suffocates(Blocks::never).blockVision(Blocks::never));
 	}
 }
