@@ -12,7 +12,7 @@
     "sources": "https://github.com/Unrelentless/FallFest1.16"
   },
   "license": "CC0-1.0",
-  "icon": "assets/modid/icon.png",
+  "icon": "assets/unrelentless-fallfest116/icon.png",
   "environment": "*",
   "entrypoints": {
     "main": [
@@ -25,7 +25,7 @@
     ]
   },
   "mixins": [
-    "modid.mixins.json"
+    "unrelentless-fallfest116.mixins.json"
   ],
   "depends": {
     "fabricloader": ">=0.7.4",

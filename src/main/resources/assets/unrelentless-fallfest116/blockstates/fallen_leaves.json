@@ -1,0 +1,22 @@
+    {
+        "variants": {
+            "type=acacia": {
+                "model": "unrelentless-fallfest116:block/acacia"
+            },
+            "type=birch": {
+                "model": "unrelentless-fallfest116:block/birch"
+            },
+            "type=dark_oak": {
+                "model": "unrelentless-fallfest116:block/dark_oak"
+            },
+            "type=jungle": {
+                "model": "unrelentless-fallfest116:block/jungle"
+            },
+            "type=oak": {
+                "model": "unrelentless-fallfest116:block/oak"
+            },
+            "type=spruce": {
+                "model": "unrelentless-fallfest116:block/spruce"
+            }
+        }
+    }

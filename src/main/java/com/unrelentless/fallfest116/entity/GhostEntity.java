@@ -3,6 +3,12 @@ package com.unrelentless.fallfest116.entity;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.unrelentless.fallfest116.FallFest116;
+import com.unrelentless.fallfest116.block.FallenGrassBlock;
+import com.unrelentless.fallfest116.block.FallenGrassBlock.LeafType;
+
+import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.goal.FollowTargetGoal;
@@ -11,6 +17,7 @@ import net.minecraft.entity.ai.goal.ProjectileAttackGoal;
 import net.minecraft.entity.ai.goal.WanderAroundFarGoal;
 import net.minecraft.entity.attribute.DefaultAttributeContainer;
 import net.minecraft.entity.attribute.EntityAttributes;
+import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.effect.StatusEffectType;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.passive.SnowGolemEntity;
@@ -20,9 +27,11 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionUtil;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.registry.Registry;
+import net.minecraft.world.GameRules;
 import net.minecraft.world.World;
 
 public class GhostEntity extends SnowGolemEntity {
@@ -62,6 +71,38 @@ public class GhostEntity extends SnowGolemEntity {
 
     public boolean hurtByWater() {
         return false;
+    }
+
+    public void tickMovement() {
+        super.tickMovement();
+        if (!this.world.isClient) {
+            int i = MathHelper.floor(this.getX());
+            int j = MathHelper.floor(this.getY());
+            int k = MathHelper.floor(this.getZ());
+            if (this.world.getBiome(new BlockPos(i, 0, k)).getTemperature(new BlockPos(i, j, k)) > 1.0F) {
+                this.damage(DamageSource.ON_FIRE, 1.0F);
+            }
+
+            if (!this.world.getGameRules().getBoolean(GameRules.DO_MOB_GRIEFING)) {
+                return;
+            }
+
+            for (int l = 0; l < 4; ++l) {
+                i = MathHelper.floor(this.getX() + (double) ((float) (l % 2 * 2 - 1) * 0.25F));
+                j = MathHelper.floor(this.getY());
+                k = MathHelper.floor(this.getZ() + (double) ((float) (l / 2 % 2 * 2 - 1) * 0.25F));
+                BlockPos blockPos = new BlockPos(i, j, k);
+
+                BlockState blockState = FallFest116.FALLEN_GRASS_BLOCK.getDefaultState().with(FallenGrassBlock.TYPE,
+                        LeafType.typeForBiome(world.getBiome(blockPos).getCategory()));
+
+                if ((this.world.getBlockState(blockPos).isAir() && blockState.canPlaceAt(this.world, blockPos))
+                        || this.world.getBlockState(blockPos).equals(Blocks.SNOW.getDefaultState())) {
+                    this.world.setBlockState(blockPos, blockState);
+                }
+            }
+        }
+
     }
 
     public void attack(LivingEntity target, float pullProgress) {
