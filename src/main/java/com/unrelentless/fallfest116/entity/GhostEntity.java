@@ -6,9 +6,7 @@ import java.util.stream.Collectors;
 import com.unrelentless.fallfest116.FallFest116;
 import com.unrelentless.fallfest116.block.FallenGrassBlock;
 import com.unrelentless.fallfest116.block.FallenGrassBlock.LeafType;
-import com.unrelentless.fallfest116.mixin.FallFestLeavesBlockColours;
 
-import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.LeavesBlock;
@@ -30,7 +28,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionUtil;
-import net.minecraft.state.StateManager;
 import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
