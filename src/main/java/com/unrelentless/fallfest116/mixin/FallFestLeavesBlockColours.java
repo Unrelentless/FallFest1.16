@@ -34,12 +34,4 @@ public abstract class FallFestLeavesBlockColours extends Block {
     private void initProperty(AbstractBlock.Settings settings, CallbackInfo info) {
         this.setDefaultState(this.stateManager.getDefaultState().with(GhostEntity.FALLED, false));
     }
-
-    @Mixin(BlockState.class)
-    public interface FallFestBlockStateAccessor {
-
-        @Accessor("stateManager")
-        public void setStateManager(StateManager<Block, BlockState> stateManager);
-
-    }
 }
