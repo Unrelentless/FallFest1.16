@@ -6,9 +6,12 @@ import java.util.stream.Collectors;
 import com.unrelentless.fallfest116.FallFest116;
 import com.unrelentless.fallfest116.block.FallenGrassBlock;
 import com.unrelentless.fallfest116.block.FallenGrassBlock.LeafType;
+import com.unrelentless.fallfest116.mixin.FallFestLeavesBlockColours;
 
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
+import net.minecraft.block.LeavesBlock;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.goal.FollowTargetGoal;
@@ -27,6 +30,8 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionUtil;
+import net.minecraft.state.StateManager;
+import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
@@ -38,6 +43,8 @@ public class GhostEntity extends SnowGolemEntity {
 
     private static Potion[] goodPotions = getPotionsForType(StatusEffectType.BENEFICIAL);
     private static Potion[] badPotions = getPotionsForType(StatusEffectType.HARMFUL);
+
+    public static final BooleanProperty FALLED = BooleanProperty.of("falled");
 
     private static Potion[] getPotionsForType(StatusEffectType type) {
         List<Potion> potions = Registry.POTION.getEntries().stream().map(item -> item.getValue())
@@ -86,23 +93,9 @@ public class GhostEntity extends SnowGolemEntity {
             if (!this.world.getGameRules().getBoolean(GameRules.DO_MOB_GRIEFING)) {
                 return;
             }
-
-            for (int l = 0; l < 4; ++l) {
-                i = MathHelper.floor(this.getX() + (double) ((float) (l % 2 * 2 - 1) * 0.25F));
-                j = MathHelper.floor(this.getY());
-                k = MathHelper.floor(this.getZ() + (double) ((float) (l / 2 % 2 * 2 - 1) * 0.25F));
-                BlockPos blockPos = new BlockPos(i, j, k);
-
-                BlockState blockState = FallFest116.FALLEN_GRASS_BLOCK.getDefaultState().with(FallenGrassBlock.TYPE,
-                        LeafType.typeForBiome(world.getBiome(blockPos).getCategory()));
-
-                if ((this.world.getBlockState(blockPos).isAir() && blockState.canPlaceAt(this.world, blockPos))
-                        || this.world.getBlockState(blockPos).equals(Blocks.SNOW.getDefaultState())) {
-                    this.world.setBlockState(blockPos, blockState);
-                }
-            }
+            spreadFallOnGround();
+            spreadFallOnTrees();
         }
-
     }
 
     public void attack(LivingEntity target, float pullProgress) {
@@ -129,6 +122,42 @@ public class GhostEntity extends SnowGolemEntity {
             potionEntity.setVelocity(d, e + (double) (g * 0.2F), f, 0.75F, 8.0F);
 
             this.world.spawnEntity(potionEntity);
+        }
+    }
+
+    private void spreadFallOnGround() {
+        for (int l = 0; l < 4; ++l) {
+            int i = MathHelper.floor(this.getX() + (double) ((float) (l % 2 * 2 - 1) * 0.25F));
+            int j = MathHelper.floor(this.getY());
+            int k = MathHelper.floor(this.getZ() + (double) ((float) (l / 2 % 2 * 2 - 1) * 0.25F));
+            BlockPos blockPos = new BlockPos(i, j, k);
+
+            BlockState blockState = FallFest116.FALLEN_GRASS_BLOCK.getDefaultState().with(FallenGrassBlock.TYPE,
+                    LeafType.typeForBiome(world.getBiome(blockPos).getCategory()));
+
+            if ((this.world.getBlockState(blockPos).isAir() && blockState.canPlaceAt(this.world, blockPos))
+                    || this.world.getBlockState(blockPos).equals(Blocks.SNOW.getDefaultState())) {
+                this.world.setBlockState(blockPos, blockState);
+            }
+        }
+    }
+
+    private void spreadFallOnTrees() {
+        for (int xPos = -4; xPos < 4; ++xPos) {
+            for (int zPos = -4; zPos < 4; ++zPos) {
+                for (int yPos = 0; yPos < 20; ++yPos) {
+                    int newXPos = MathHelper.floor(this.getX()) + xPos;
+                    int newYPos = MathHelper.floor(this.getY()) + yPos;
+                    int newZPos = MathHelper.floor(this.getZ()) + zPos;
+
+                    BlockPos newBlockPos = new BlockPos(newXPos, newYPos, newZPos);
+                    BlockState blockState = this.world.getBlockState(newBlockPos);
+                    if (blockState.getBlock() instanceof LeavesBlock) {
+                        BlockState newBlockState = blockState.with(GhostEntity.FALLED, true);
+                        this.world.setBlockState(newBlockPos, newBlockState);
+                    }
+                }
+            }
         }
     }
 }

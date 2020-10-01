@@ -4,7 +4,8 @@
   "package": "com.unrelentless.fallfest116.mixin",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
-    "FallfestPumpkinBlockMixin"
+    "FallfestPumpkinBlockMixin",
+    "FallFestLeavesBlockColours"
   ],
   "client": [],
   "injectors": {
