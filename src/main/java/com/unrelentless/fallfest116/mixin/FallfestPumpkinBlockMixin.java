@@ -7,8 +7,6 @@ import net.minecraft.block.CarvedPumpkinBlock;
 import net.minecraft.block.pattern.BlockPattern;
 import net.minecraft.block.pattern.BlockPatternBuilder;
 import net.minecraft.block.pattern.CachedBlockPosition;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.color.item.ItemColors;
 import net.minecraft.predicate.block.BlockStatePredicate;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.math.BlockPos;
@@ -46,7 +44,7 @@ public class FallfestPumpkinBlockMixin {
             ghostEnity.refreshPositionAndAngles((double) blockPos.getX() + 0.5D, (double) blockPos.getY() + 0.05D,
                     (double) blockPos.getZ() + 0.5D, 0.0F, 0.0F);
             world.spawnEntity(ghostEnity);
-            Iterator var6 = world
+            Iterator<ServerPlayerEntity> var6 = world
                     .getNonSpectatingEntities(ServerPlayerEntity.class, ghostEnity.getBoundingBox().expand(5.0D))
                     .iterator();
 

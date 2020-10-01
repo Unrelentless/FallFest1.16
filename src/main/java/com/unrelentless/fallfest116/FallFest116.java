@@ -15,11 +15,11 @@ public class FallFest116 implements ModInitializer {
 
 	public static final EntityType<GhostEntity> GHOST = Registry.register(Registry.ENTITY_TYPE,
 			new Identifier("unrelentless-fallfest116", "ghost"),
-			FabricEntityTypeBuilder.<GhostEntity>create(SpawnGroup.MISC, GhostEntity::new)
+			FabricEntityTypeBuilder.<GhostEntity>create(SpawnGroup.MISC, GhostEntity::new).trackRangeBlocks(8)
 					.dimensions(EntityDimensions.fixed(0.7F, 1.9F)).build());
 
 	@Override
 	public void onInitialize() {
-		FabricDefaultAttributeRegistry.register(GHOST, GhostEntity.createMobAttributes());
+		FabricDefaultAttributeRegistry.register(GHOST, GhostEntity.createGhostAttributes());
 	}
 }
