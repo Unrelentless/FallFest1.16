@@ -34,7 +34,6 @@ public abstract class FallFestLeavesBlockColours extends Block {
     @Inject(at = @At("TAIL"), method = "randomTick(Lnet/minecraft/block/BlockState;Lnet/minecraft/server/world/ServerWorld;Lnet/minecraft/util/math/BlockPos;Ljava/util/Random;)V")
     private void injectFalledPropertyToNeighbours(BlockState state, ServerWorld world, BlockPos pos, Random random,
             CallbackInfo info) {
-
         if (state.get(GhostEntity.FALLED) == true) {
             BlockPos.Mutable mutable = new BlockPos.Mutable();
             Direction[] var6 = AbstractBlock.FACINGS;
@@ -46,11 +45,9 @@ public abstract class FallFestLeavesBlockColours extends Block {
                 BlockState blockState = world.getBlockState(mutable);
                 if (blockState.getBlock() instanceof LeavesBlock) {
                     if (!blockState.get(GhostEntity.FALLED)) {
-
                         BlockState blockState2 = blockState
                                 .getStateForNeighborUpdate(direction.getOpposite(), state, world, mutable, pos)
                                 .with(GhostEntity.FALLED, true);
-
                         world.setBlockState(mutable, blockState2);
                     }
                 }
@@ -67,6 +64,6 @@ public abstract class FallFestLeavesBlockColours extends Block {
 
     @Inject(at = @At("RETURN"), method = "<init>(Lnet/minecraft/block/AbstractBlock/Settings;)V")
     private void initProperty(AbstractBlock.Settings settings, CallbackInfo info) {
-        this.setDefaultState(this.stateManager.getDefaultState().with(GhostEntity.FALLED, false));
+        this.setDefaultState(this.getDefaultState().with(GhostEntity.FALLED, false));
     }
 }
