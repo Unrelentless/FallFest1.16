@@ -103,8 +103,6 @@ public class GhostEntity extends SnowGolemEntity {
             int randomIndex = (int) (Math.random()
                     * (shouldUseBadPotion ? this.badPotions.length : this.goodPotions.length));
 
-            System.out.println(randomIndex);
-
             Potion potion = shouldUseBadPotion ? this.badPotions[randomIndex] : this.goodPotions[randomIndex];
             PotionEntity potionEntity = new PotionEntity(this.world, this);
 
