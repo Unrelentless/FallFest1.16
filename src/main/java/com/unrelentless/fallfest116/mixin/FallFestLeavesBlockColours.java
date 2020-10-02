@@ -46,16 +46,16 @@ public abstract class FallFestLeavesBlockColours extends Block {
                 mutable.set(pos, direction);
                 BlockState blockState = world.getBlockState(mutable);
                 if (blockState.getBlock() instanceof LeavesBlock) {
-                    if(blockState.get(GhostEntity.FALLED) {
-                    System.out.println("Next before: " + state + " at position " + pos);
+                    if (blockState.get(GhostEntity.FALLED)) {
+                        System.out.println("Next before: " + state + " at position " + pos);
 
-                    BlockState blockState2 = blockState
-                            .getStateForNeighborUpdate(direction.getOpposite(), state, world, mutable, pos)
-                            .with(GhostEntity.FALLED, true);
+                        BlockState blockState2 = blockState
+                                .getStateForNeighborUpdate(direction.getOpposite(), state, world, mutable, pos)
+                                .with(GhostEntity.FALLED, true);
 
-                    System.out.println("Next after: " + state + " at position " + pos);
+                        System.out.println("Next after: " + state + " at position " + pos);
 
-                    world.setBlockState(mutable, blockState2);
+                        world.setBlockState(mutable, blockState2);
                     }
                 }
             }
