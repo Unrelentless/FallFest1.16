@@ -143,9 +143,11 @@ public class GhostEntity extends SnowGolemEntity {
                     BlockPos newBlockPos = new BlockPos(newXPos, newYPos, newZPos);
                     BlockState blockState = this.world.getBlockState(newBlockPos);
                     if (blockState.getBlock() instanceof LeavesBlock) {
-                        BlockState newBlockState = blockState.with(GhostEntity.FALLED, true);
-                        this.world.setBlockState(newBlockPos, newBlockState);
-                        break outer;
+                        if (!blockState.get(GhostEntity.FALLED)) {
+                            BlockState newBlockState = blockState.with(GhostEntity.FALLED, true);
+                            this.world.setBlockState(newBlockPos, newBlockState);
+                            break outer;
+                        }
                     }
                 }
             }
