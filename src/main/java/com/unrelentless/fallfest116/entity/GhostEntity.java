@@ -133,7 +133,7 @@ public class GhostEntity extends SnowGolemEntity {
 
     private void spreadFallOnTrees() {
 
-        outer: for (int yPos = 0; yPos < 20; ++yPos) {
+        outer: for (int yPos = 0; yPos < 30; ++yPos) {
             for (int xPos = -4; xPos < 4; ++xPos) {
                 for (int zPos = -4; zPos < 4; ++zPos) {
                     int newXPos = MathHelper.floor(this.getX()) + xPos;
