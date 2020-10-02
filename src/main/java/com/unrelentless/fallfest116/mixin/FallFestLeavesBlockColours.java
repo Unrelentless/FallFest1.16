@@ -34,7 +34,6 @@ public abstract class FallFestLeavesBlockColours extends Block {
     @Inject(at = @At("TAIL"), method = "randomTick(Lnet/minecraft/block/BlockState;Lnet/minecraft/server/world/ServerWorld;Lnet/minecraft/util/math/BlockPos;Ljava/util/Random;)V")
     private void injectFalledPropertyToNeighbours(BlockState state, ServerWorld world, BlockPos pos, Random random,
             CallbackInfo info) {
-        System.out.println("Original: " + state + " at position " + pos);
 
         if (state.get(GhostEntity.FALLED) == true) {
             BlockPos.Mutable mutable = new BlockPos.Mutable();
@@ -46,14 +45,11 @@ public abstract class FallFestLeavesBlockColours extends Block {
                 mutable.set(pos, direction);
                 BlockState blockState = world.getBlockState(mutable);
                 if (blockState.getBlock() instanceof LeavesBlock) {
-                    if (blockState.get(GhostEntity.FALLED)) {
-                        System.out.println("Next before: " + state + " at position " + pos);
+                    if (!blockState.get(GhostEntity.FALLED)) {
 
                         BlockState blockState2 = blockState
                                 .getStateForNeighborUpdate(direction.getOpposite(), state, world, mutable, pos)
                                 .with(GhostEntity.FALLED, true);
-
-                        System.out.println("Next after: " + state + " at position " + pos);
 
                         world.setBlockState(mutable, blockState2);
                     }
