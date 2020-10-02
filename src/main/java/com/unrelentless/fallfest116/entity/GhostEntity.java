@@ -19,7 +19,6 @@ import net.minecraft.entity.ai.goal.ProjectileAttackGoal;
 import net.minecraft.entity.ai.goal.WanderAroundFarGoal;
 import net.minecraft.entity.attribute.DefaultAttributeContainer;
 import net.minecraft.entity.attribute.EntityAttributes;
-import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.effect.StatusEffectType;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.passive.SnowGolemEntity;
@@ -81,13 +80,6 @@ public class GhostEntity extends SnowGolemEntity {
     public void tickMovement() {
         super.tickMovement();
         if (!this.world.isClient) {
-            int i = MathHelper.floor(this.getX());
-            int j = MathHelper.floor(this.getY());
-            int k = MathHelper.floor(this.getZ());
-            if (this.world.getBiome(new BlockPos(i, 0, k)).getTemperature(new BlockPos(i, j, k)) > 1.0F) {
-                this.damage(DamageSource.ON_FIRE, 1.0F);
-            }
-
             if (!this.world.getGameRules().getBoolean(GameRules.DO_MOB_GRIEFING)) {
                 return;
             }
@@ -142,9 +134,10 @@ public class GhostEntity extends SnowGolemEntity {
     }
 
     private void spreadFallOnTrees() {
-        for (int xPos = -4; xPos < 4; ++xPos) {
-            for (int zPos = -4; zPos < 4; ++zPos) {
-                for (int yPos = 0; yPos < 20; ++yPos) {
+
+        outer: for (int yPos = 0; yPos < 20; ++yPos) {
+            for (int xPos = -4; xPos < 4; ++xPos) {
+                for (int zPos = -4; zPos < 4; ++zPos) {
                     int newXPos = MathHelper.floor(this.getX()) + xPos;
                     int newYPos = MathHelper.floor(this.getY()) + yPos;
                     int newZPos = MathHelper.floor(this.getZ()) + zPos;
@@ -154,6 +147,7 @@ public class GhostEntity extends SnowGolemEntity {
                     if (blockState.getBlock() instanceof LeavesBlock) {
                         BlockState newBlockState = blockState.with(GhostEntity.FALLED, true);
                         this.world.setBlockState(newBlockPos, newBlockState);
+                        break outer;
                     }
                 }
             }
