@@ -26,7 +26,7 @@ public abstract class FallFestLeavesBlockColours extends Block {
         super(settings);
     }
 
-    @Inject(at = @At("TAIL"), method = "appendProperties(Lnet/minecraft/state/StateManager/Builder;)V")
+    @Inject(at = @At("TAIL"), method = "appendProperties(Lnet/minecraft/state/StateManager$Builder;)V")
     private void injectFalledProperty(StateManager.Builder<Block, BlockState> builder, CallbackInfo info) {
         builder.add(GhostEntity.FALLED);
     }
@@ -62,7 +62,7 @@ public abstract class FallFestLeavesBlockColours extends Block {
         cir.setReturnValue(newValue);
     }
 
-    @Inject(at = @At("RETURN"), method = "<init>(Lnet/minecraft/block/AbstractBlock/Settings;)V")
+    @Inject(at = @At("RETURN"), method = "<init>(Lnet/minecraft/block/AbstractBlock$Settings;)V")
     private void initProperty(AbstractBlock.Settings settings, CallbackInfo info) {
         this.setDefaultState(this.getDefaultState().with(GhostEntity.FALLED, false));
     }

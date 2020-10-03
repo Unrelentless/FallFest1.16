@@ -24,7 +24,7 @@ public class FallFest116 implements ModInitializer {
 
 	public static final EntityType<GhostEntity> GHOST = Registry.register(Registry.ENTITY_TYPE,
 			new Identifier(MODID, "ghost"),
-			FabricEntityTypeBuilder.<GhostEntity>create(SpawnGroup.MISC, GhostEntity::new).trackRangeBlocks(8)
+			FabricEntityTypeBuilder.<GhostEntity>create(SpawnGroup.CREATURE, GhostEntity::new).trackRangeBlocks(8)
 					.dimensions(EntityDimensions.fixed(0.7F, 1.9F)).build());
 
 	public static final FallenGrassBlock FALLEN_GRASS_BLOCK = new FallenGrassBlock(

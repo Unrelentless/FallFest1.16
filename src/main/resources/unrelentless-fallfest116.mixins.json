@@ -5,7 +5,8 @@
   "compatibilityLevel": "JAVA_8",
   "mixins": [
     "FallfestPumpkinBlockMixin",
-    "FallFestLeavesBlockColours"
+    "FallFestLeavesBlockColours",
+    "FallFestSpawn"
   ],
   "client": [],
   "injectors": {
