@@ -1,7 +1,7 @@
 package com.unrelentless.fallfest116;
 
+import com.unrelentless.fallfest116.client.render.entity.GhostEntityRenderer;
 import com.unrelentless.fallfest116.entity.GhostEntity;
-import com.unrelentless.fallfest116.entity.GhostEntityRenderer;
 
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.Environment;

@@ -7,6 +7,7 @@ import com.unrelentless.fallfest116.FallFest116;
 import com.unrelentless.fallfest116.block.FallenGrassBlock;
 import com.unrelentless.fallfest116.block.FallenGrassBlock.LeafType;
 
+import net.fabricmc.api.Environment;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.LeavesBlock;
@@ -19,6 +20,9 @@ import net.minecraft.entity.ai.goal.ProjectileAttackGoal;
 import net.minecraft.entity.ai.goal.WanderAroundFarGoal;
 import net.minecraft.entity.attribute.DefaultAttributeContainer;
 import net.minecraft.entity.attribute.EntityAttributes;
+import net.minecraft.entity.data.DataTracker;
+import net.minecraft.entity.data.TrackedData;
+import net.minecraft.entity.data.TrackedDataHandlerRegistry;
 import net.minecraft.entity.effect.StatusEffectType;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.passive.SnowGolemEntity;
@@ -35,6 +39,7 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.world.GameRules;
 import net.minecraft.world.World;
+import net.fabricmc.api.EnvType;
 
 public class GhostEntity extends SnowGolemEntity {
 
@@ -54,12 +59,14 @@ public class GhostEntity extends SnowGolemEntity {
         return filteredPotions;
     }
 
+    private static final TrackedData<Boolean> SHOOTING;
+
     public GhostEntity(EntityType<? extends SnowGolemEntity> entityType, World world) {
         super(entityType, world);
     }
 
     protected void initGoals() {
-        this.goalSelector.add(1, new GhostProjectileAttackGoal(this, 1.25D, 60, 15.0F));
+        this.goalSelector.add(1, new GhostProjectileAttackGoal(this, 1.25D, 60, 8.0F));
         this.goalSelector.add(3, new WanderAroundFarGoal(this, 1.0D, 1.0000001E-5F));
         this.goalSelector.add(4, new LookAroundGoal(this));
         this.targetSelector.add(1,
@@ -70,8 +77,7 @@ public class GhostEntity extends SnowGolemEntity {
 
     public static DefaultAttributeContainer.Builder createGhostAttributes() {
         return MobEntity.createMobAttributes().add(EntityAttributes.GENERIC_MAX_HEALTH, 20.0D)
-                .add(EntityAttributes.GENERIC_MOVEMENT_SPEED, 0.20000000298023224D)
-                .add(EntityAttributes.GENERIC_FOLLOW_RANGE, 8.0D);
+                .add(EntityAttributes.GENERIC_MOVEMENT_SPEED, 0.2D).add(EntityAttributes.GENERIC_FOLLOW_RANGE, 8.0D);
     }
 
     public boolean hurtByWater() {
@@ -87,6 +93,20 @@ public class GhostEntity extends SnowGolemEntity {
             spreadFallOnGround();
             spreadFallOnTrees();
         }
+    }
+
+    @Environment(EnvType.CLIENT)
+    public boolean isShooting() {
+        return (Boolean) this.dataTracker.get(SHOOTING);
+    }
+
+    public void setShooting(boolean shooting) {
+        this.dataTracker.set(SHOOTING, shooting);
+    }
+
+    protected void initDataTracker() {
+        super.initDataTracker();
+        this.dataTracker.startTracking(SHOOTING, false);
     }
 
     public void attack(LivingEntity target, float pullProgress) {
@@ -133,8 +153,7 @@ public class GhostEntity extends SnowGolemEntity {
     }
 
     private void spreadFallOnTrees() {
-
-        outer: for (int yPos = 0; yPos < 30; ++yPos) {
+        for (int yPos = 0; yPos < 30; ++yPos) {
             for (int xPos = -4; xPos < 4; ++xPos) {
                 for (int zPos = -4; zPos < 4; ++zPos) {
                     int newXPos = MathHelper.floor(this.getX()) + xPos;
@@ -144,29 +163,40 @@ public class GhostEntity extends SnowGolemEntity {
                     BlockPos newBlockPos = new BlockPos(newXPos, newYPos, newZPos);
                     BlockState blockState = this.world.getBlockState(newBlockPos);
                     if (blockState.getBlock() instanceof LeavesBlock) {
-                        if (!blockState.get(GhostEntity.FALLED)) {
-                            BlockState newBlockState = blockState.with(GhostEntity.FALLED, true);
-                            this.world.setBlockState(newBlockPos, newBlockState);
-                        }
-                        break outer;
+                        BlockState newBlockState = blockState.with(GhostEntity.FALLED, true);
+                        this.world.setBlockState(newBlockPos, newBlockState);
+
                     }
                 }
             }
         }
     }
 
-    private class GhostProjectileAttackGoal extends ProjectileAttackGoal {
+    static {
+        SHOOTING = DataTracker.registerData(GhostEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
+    }
 
-        private final MobEntity mob;
+    private class GhostProjectileAttackGoal extends ProjectileAttackGoal {
+        private final GhostEntity mob;
 
         public GhostProjectileAttackGoal(RangedAttackMob mob, double mobSpeed, int intervalTicks, float maxShootRange) {
             super(mob, mobSpeed, intervalTicks, maxShootRange);
-            this.mob = (MobEntity) mob;
+            this.mob = (GhostEntity) mob;
         }
 
         @Override
         public boolean shouldContinue() {
             return !this.mob.world.isDay();
+        }
+
+        public void start() {
+            this.mob.setShooting(true);
+            super.start();
+        }
+
+        public void stop() {
+            this.mob.setShooting(false);
+            super.stop();
         }
     }
 }
