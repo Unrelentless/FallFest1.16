@@ -1,6 +1,9 @@
 package com.unrelentless.fallfest116.entity;
 
+import java.util.ArrayList;
+import java.util.Hashtable;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import com.unrelentless.fallfest116.FallFest116;
@@ -27,15 +30,13 @@ import net.minecraft.entity.effect.StatusEffectType;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.passive.SnowGolemEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.projectile.thrown.PotionEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
 import net.minecraft.potion.Potion;
-import net.minecraft.potion.PotionUtil;
 import net.minecraft.state.property.BooleanProperty;
+import net.minecraft.util.ActionResult;
+import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.world.GameRules;
 import net.minecraft.world.World;
@@ -60,24 +61,33 @@ public class GhostEntity extends SnowGolemEntity {
     }
 
     private static final TrackedData<Boolean> SHOOTING;
+    private static final Hashtable<String, Integer> playerData = new Hashtable<>();
 
     public GhostEntity(EntityType<? extends SnowGolemEntity> entityType, World world) {
         super(entityType, world);
     }
 
+    public static void genTestData() {
+        for (int i = 0; i < 1000; i++) {
+            playerData.put(UUID.randomUUID().toString(), 600);
+
+        }
+    }
+
     protected void initGoals() {
-        this.goalSelector.add(1, new GhostProjectileAttackGoal(this, 1.25D, 60, 8.0F));
+        this.goalSelector.add(1, new GhostProjectileAttackGoal(this, 1.25D, 60, 2.0F));
         this.goalSelector.add(3, new WanderAroundFarGoal(this, 1.0D, 1.0000001E-5F));
         this.goalSelector.add(4, new LookAroundGoal(this));
         this.targetSelector.add(1,
                 new FollowTargetGoal<PlayerEntity>(this, PlayerEntity.class, 10, true, false, (livingEntity) -> {
-                    return livingEntity instanceof PlayerEntity;
+                    return !this.world.isDay() && livingEntity instanceof PlayerEntity
+                            && !playerData.containsKey(livingEntity.getName().asString());
                 }));
     }
 
     public static DefaultAttributeContainer.Builder createGhostAttributes() {
         return MobEntity.createMobAttributes().add(EntityAttributes.GENERIC_MAX_HEALTH, 20.0D)
-                .add(EntityAttributes.GENERIC_MOVEMENT_SPEED, 0.2D).add(EntityAttributes.GENERIC_FOLLOW_RANGE, 8.0D);
+                .add(EntityAttributes.GENERIC_MOVEMENT_SPEED, 0.2D).add(EntityAttributes.GENERIC_FOLLOW_RANGE, 4.0D);
     }
 
     public boolean hurtByWater() {
@@ -95,6 +105,21 @@ public class GhostEntity extends SnowGolemEntity {
         }
     }
 
+    @Override
+    protected ActionResult interactMob(PlayerEntity player, Hand hand) {
+        ItemStack stack = player.getStackInHand(hand);
+        if (!world.isDay() && stack.isFood() && !playerData.containsKey(player.getName().asString())) {
+            float saturation = stack.getItem().getFoodComponent().getSaturationModifier();
+            int hunger = stack.getItem().getFoodComponent().getHunger();
+            float aggregateScore = hunger * saturation;
+
+            attackEntity(player, aggregateScore);
+            putPlayerInData(player);
+            stack.decrement(1);
+        }
+        return ActionResult.SUCCESS;
+    }
+
     @Environment(EnvType.CLIENT)
     public boolean isShooting() {
         return (Boolean) this.dataTracker.get(SHOOTING);
@@ -109,30 +134,41 @@ public class GhostEntity extends SnowGolemEntity {
         this.dataTracker.startTracking(SHOOTING, false);
     }
 
+    @Override
     public void attack(LivingEntity target, float pullProgress) {
-        if (!this.world.isDay()) {
-            Vec3d vec3d = target.getVelocity();
-            double d = target.getX() + vec3d.x - this.getX();
-            double e = target.getEyeY() - 1.100000023841858D - this.getY();
-            double f = target.getZ() + vec3d.z - this.getZ();
-            float g = MathHelper.sqrt(d * d + f * f);
 
-            double scale = Math.pow(10, 1);
-            double random = Math.round(Math.random() * scale) / scale;
-            boolean shouldUseBadPotion = random == 0.5;
+    }
 
-            int randomIndex = (int) (Math.random()
-                    * (shouldUseBadPotion ? this.badPotions.length : this.goodPotions.length));
+    private void attackEntity(LivingEntity target, float aggregate) {
+        double scale = Math.pow(10, 1);
+        double random = Math.round(Math.random() * scale) / scale;
+        boolean shouldUseBadPotion = random == 0.5;
 
-            Potion potion = shouldUseBadPotion ? this.badPotions[randomIndex] : this.goodPotions[randomIndex];
-            PotionEntity potionEntity = new PotionEntity(this.world, this);
+        int randomIndex = (int) (Math.random()
+                * (shouldUseBadPotion ? this.badPotions.length : this.goodPotions.length));
 
-            potionEntity.setItem(PotionUtil.setPotion(new ItemStack(Items.SPLASH_POTION), potion));
-            potionEntity.pitch -= -20.0F;
-            potionEntity.setVelocity(d, e + (double) (g * 0.2F), f, 0.75F, 8.0F);
+        Potion potion = shouldUseBadPotion ? this.badPotions[randomIndex] : this.goodPotions[randomIndex];
 
-            this.world.spawnEntity(potionEntity);
+        target.applyStatusEffect(potion.getEffects().get(0));
+    }
+
+    private void putPlayerInData(PlayerEntity player) {
+        String name = player.getName().asString();
+        if (!playerData.containsKey(name)) {
+            playerData.put(name, 600); // TODO: put real time in
         }
+    }
+
+    public static void updatePlayerData() {
+        ArrayList<String> playersToRemove = new ArrayList<String>();
+        playerData.entrySet().forEach(set -> {
+            set.setValue(set.getValue() - 1);
+
+            if (set.getValue() <= 0) {
+                playersToRemove.add(set.getKey());
+            }
+        });
+        playersToRemove.forEach(player -> playerData.remove(player));
     }
 
     private void spreadFallOnGround() {
@@ -165,7 +201,6 @@ public class GhostEntity extends SnowGolemEntity {
                     if (blockState.getBlock() instanceof LeavesBlock) {
                         BlockState newBlockState = blockState.with(GhostEntity.FALLED, true);
                         this.world.setBlockState(newBlockPos, newBlockState);
-
                     }
                 }
             }
@@ -186,7 +221,7 @@ public class GhostEntity extends SnowGolemEntity {
 
         @Override
         public boolean shouldContinue() {
-            return !this.mob.world.isDay();
+            return !this.mob.world.isDay() && super.shouldContinue();
         }
 
         public void start() {
