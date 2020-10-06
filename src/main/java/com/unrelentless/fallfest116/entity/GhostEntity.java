@@ -113,7 +113,7 @@ public class GhostEntity extends GolemEntity implements RangedAttackMob {
             int hunger = stack.getItem().getFoodComponent().getHunger();
             float aggregateScore = hunger * saturation;
 
-            attackEntity(player, aggregateScore);
+            treatEntity(player, aggregateScore);
             EntityComponents.GHOST_COOLDOWN.get(player).setValue(GhostCooldownIntComponent.GHOST_COOLDOWN_VALUE);
             stack.decrement(1);
         }
@@ -139,17 +139,13 @@ public class GhostEntity extends GolemEntity implements RangedAttackMob {
 
     }
 
-    private void attackEntity(LivingEntity target, float aggregate) {
-        double scale = Math.pow(10, 1);
-        double random = Math.round(Math.random() * scale) / scale;
-        boolean shouldUseBadPotion = random == 0.5;
-
+    private void treatEntity(LivingEntity target, float aggregate) {
+        boolean shouldUseBadPotion = aggregate <= 3.5;
         int randomIndex = (int) (Math.random()
                 * (shouldUseBadPotion ? this.badPotions.length : this.goodPotions.length));
-
         Potion potion = shouldUseBadPotion ? this.badPotions[randomIndex] : this.goodPotions[randomIndex];
 
-        target.applyStatusEffect(potion.getEffects().get(0));
+        potion.getEffects().forEach(effect -> target.applyStatusEffect(effect));
     }
 
     private void spreadFallOnGround() {
