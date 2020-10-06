@@ -1,8 +1,12 @@
 package com.unrelentless.fallfest116;
 
 import com.unrelentless.fallfest116.block.FallenGrassBlock;
+import com.unrelentless.fallfest116.components.EntityComponents;
+import com.unrelentless.fallfest116.components.GhostCooldownIntComponent;
 import com.unrelentless.fallfest116.entity.GhostEntity;
 
+import nerdhub.cardinal.components.api.event.ComponentRegisteredCallback;
+import nerdhub.cardinal.components.api.event.EntityComponentCallback;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
@@ -11,6 +15,7 @@ import net.minecraft.block.Material;
 import net.minecraft.entity.EntityDimensions;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.SpawnGroup;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
@@ -38,5 +43,9 @@ public class FallFest116 implements ModInitializer {
 				new BlockItem(FALLEN_GRASS_BLOCK, new Item.Settings().group(ItemGroup.BUILDING_BLOCKS)));
 
 		FabricDefaultAttributeRegistry.register(GHOST, GhostEntity.createGhostAttributes());
+
+		EntityComponentCallback.event(PlayerEntity.class).register((provider, components) -> {
+			components.put(EntityComponents.GHOST_COOLDOWN, new GhostCooldownIntComponent());
+		});
 	}
 }

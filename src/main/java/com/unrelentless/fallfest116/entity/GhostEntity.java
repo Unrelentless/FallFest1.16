@@ -1,14 +1,14 @@
 package com.unrelentless.fallfest116.entity;
 
-import java.util.ArrayList;
-import java.util.Hashtable;
 import java.util.List;
-import java.util.UUID;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import com.unrelentless.fallfest116.FallFest116;
 import com.unrelentless.fallfest116.block.FallenGrassBlock;
 import com.unrelentless.fallfest116.block.FallenGrassBlock.LeafType;
+import com.unrelentless.fallfest116.components.EntityComponents;
+import com.unrelentless.fallfest116.components.GhostCooldownIntComponent;
 
 import net.fabricmc.api.Environment;
 import net.minecraft.block.BlockState;
@@ -23,15 +23,18 @@ import net.minecraft.entity.ai.goal.ProjectileAttackGoal;
 import net.minecraft.entity.ai.goal.WanderAroundFarGoal;
 import net.minecraft.entity.attribute.DefaultAttributeContainer;
 import net.minecraft.entity.attribute.EntityAttributes;
+import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
 import net.minecraft.entity.effect.StatusEffectType;
 import net.minecraft.entity.mob.MobEntity;
-import net.minecraft.entity.passive.SnowGolemEntity;
+import net.minecraft.entity.passive.GolemEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.potion.Potion;
+import net.minecraft.sound.SoundEvent;
+import net.minecraft.sound.SoundEvents;
 import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
@@ -42,7 +45,7 @@ import net.minecraft.world.GameRules;
 import net.minecraft.world.World;
 import net.fabricmc.api.EnvType;
 
-public class GhostEntity extends SnowGolemEntity {
+public class GhostEntity extends GolemEntity implements RangedAttackMob {
 
     private Potion[] goodPotions = getPotionsForType(StatusEffectType.BENEFICIAL);
     private Potion[] badPotions = getPotionsForType(StatusEffectType.HARMFUL);
@@ -61,17 +64,9 @@ public class GhostEntity extends SnowGolemEntity {
     }
 
     private static final TrackedData<Boolean> SHOOTING;
-    private static final Hashtable<String, Integer> playerData = new Hashtable<>();
 
-    public GhostEntity(EntityType<? extends SnowGolemEntity> entityType, World world) {
+    public GhostEntity(EntityType<? extends GolemEntity> entityType, World world) {
         super(entityType, world);
-    }
-
-    public static void genTestData() {
-        for (int i = 0; i < 1000; i++) {
-            playerData.put(UUID.randomUUID().toString(), 600);
-
-        }
     }
 
     protected void initGoals() {
@@ -79,9 +74,14 @@ public class GhostEntity extends SnowGolemEntity {
         this.goalSelector.add(3, new WanderAroundFarGoal(this, 1.0D, 1.0000001E-5F));
         this.goalSelector.add(4, new LookAroundGoal(this));
         this.targetSelector.add(1,
-                new FollowTargetGoal<PlayerEntity>(this, PlayerEntity.class, 10, true, false, (livingEntity) -> {
-                    return !this.world.isDay() && livingEntity instanceof PlayerEntity
-                            && !playerData.containsKey(livingEntity.getName().asString());
+                new GhostFollowTargetGoal(this, PlayerEntity.class, 10, true, false, (livingEntity) -> {
+                    if (livingEntity instanceof PlayerEntity) {
+                        boolean firstCheck = !this.world.isDay();
+                        int value = EntityComponents.GHOST_COOLDOWN.get(livingEntity).getValue();
+                        boolean secondCheck = value == 0;
+                        return firstCheck && secondCheck;
+                    }
+                    return false;
                 }));
     }
 
@@ -108,13 +108,13 @@ public class GhostEntity extends SnowGolemEntity {
     @Override
     protected ActionResult interactMob(PlayerEntity player, Hand hand) {
         ItemStack stack = player.getStackInHand(hand);
-        if (!world.isDay() && stack.isFood() && !playerData.containsKey(player.getName().asString())) {
+        if (!world.isDay() && stack.isFood() && EntityComponents.GHOST_COOLDOWN.get(player).getValue() == 0) {
             float saturation = stack.getItem().getFoodComponent().getSaturationModifier();
             int hunger = stack.getItem().getFoodComponent().getHunger();
             float aggregateScore = hunger * saturation;
 
             attackEntity(player, aggregateScore);
-            putPlayerInData(player);
+            EntityComponents.GHOST_COOLDOWN.get(player).setValue(GhostCooldownIntComponent.GHOST_COOLDOWN_VALUE);
             stack.decrement(1);
         }
         return ActionResult.SUCCESS;
@@ -150,25 +150,6 @@ public class GhostEntity extends SnowGolemEntity {
         Potion potion = shouldUseBadPotion ? this.badPotions[randomIndex] : this.goodPotions[randomIndex];
 
         target.applyStatusEffect(potion.getEffects().get(0));
-    }
-
-    private void putPlayerInData(PlayerEntity player) {
-        String name = player.getName().asString();
-        if (!playerData.containsKey(name)) {
-            playerData.put(name, 600); // TODO: put real time in
-        }
-    }
-
-    public static void updatePlayerData() {
-        ArrayList<String> playersToRemove = new ArrayList<String>();
-        playerData.entrySet().forEach(set -> {
-            set.setValue(set.getValue() - 1);
-
-            if (set.getValue() <= 0) {
-                playersToRemove.add(set.getKey());
-            }
-        });
-        playersToRemove.forEach(player -> playerData.remove(player));
     }
 
     private void spreadFallOnGround() {
@@ -207,6 +188,21 @@ public class GhostEntity extends SnowGolemEntity {
         }
     }
 
+    @Override
+    protected SoundEvent getAmbientSound() {
+        return SoundEvents.ENTITY_WITCH_AMBIENT;
+    }
+
+    @Override
+    protected SoundEvent getHurtSound(DamageSource source) {
+        return SoundEvents.ENTITY_DOLPHIN_HURT;
+    }
+
+    @Override
+    protected SoundEvent getDeathSound() {
+        return SoundEvents.ENTITY_TURTLE_DEATH_BABY;
+    }
+
     static {
         SHOOTING = DataTracker.registerData(GhostEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
     }
@@ -232,6 +228,20 @@ public class GhostEntity extends SnowGolemEntity {
         public void stop() {
             this.mob.setShooting(false);
             super.stop();
+        }
+    }
+
+    private class GhostFollowTargetGoal extends FollowTargetGoal<PlayerEntity> {
+
+        public GhostFollowTargetGoal(MobEntity mob, Class<PlayerEntity> targetClass, int reciprocalChance,
+                boolean checkVisibility, boolean checkCanNavigate, Predicate<LivingEntity> targetPredicate) {
+            super(mob, targetClass, reciprocalChance, checkVisibility, checkCanNavigate, targetPredicate);
+        }
+
+        @Override
+        public boolean shouldContinue() {
+            int value = EntityComponents.GHOST_COOLDOWN.get(this.mob.getTarget()).getValue();
+            return super.shouldContinue() && !this.mob.world.isDay() && value == 0;
         }
     }
 }

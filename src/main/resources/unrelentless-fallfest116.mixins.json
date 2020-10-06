@@ -7,8 +7,7 @@
     "FallfestPumpkinBlockMixin",
     "FallFestLeavesBlockColours",
     "FallFestSpawn",
-    "FallFestTickMixin",
-    "FallFestPlayerTrackerMixin"
+    "FallFestTickMixin"
   ],
   "client": [],
   "injectors": {
