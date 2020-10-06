@@ -5,10 +5,9 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import com.unrelentless.fallfest116.FallFest116;
-import com.unrelentless.fallfest116.block.FallenGrassBlock;
-import com.unrelentless.fallfest116.block.FallenGrassBlock.LeafType;
-import com.unrelentless.fallfest116.components.EntityComponents;
-import com.unrelentless.fallfest116.components.GhostCooldownIntComponent;
+import com.unrelentless.fallfest116.block.FallenLeavesBlock;
+import com.unrelentless.fallfest116.component.EntityComponents;
+import com.unrelentless.fallfest116.util.LeafType;
 
 import net.fabricmc.api.Environment;
 import net.minecraft.block.BlockState;
@@ -52,38 +51,11 @@ public class GhostEntity extends GolemEntity implements RangedAttackMob {
     private Potion[] badPotions = getPotionsForType(StatusEffectType.HARMFUL);
 
     public static final BooleanProperty FALLED = BooleanProperty.of("falled");
-
-    private static Potion[] getPotionsForType(StatusEffectType type) {
-        List<Potion> potions = Registry.POTION.getEntries().stream().map(item -> item.getValue())
-                .filter(potion -> !potion.getEffects().isEmpty()).collect(Collectors.toList());
-
-        Potion[] filteredPotions = potions.stream()
-                .filter(potion -> potion.getEffects().get(0).getEffectType().getType().equals(type))
-                .toArray(Potion[]::new);
-
-        return filteredPotions;
-    }
-
-    private static final TrackedData<Boolean> SHOOTING;
+    private static final TrackedData<Boolean> SHOOTING = DataTracker.registerData(GhostEntity.class,
+            TrackedDataHandlerRegistry.BOOLEAN);
 
     public GhostEntity(EntityType<? extends GolemEntity> entityType, World world) {
         super(entityType, world);
-    }
-
-    protected void initGoals() {
-        this.goalSelector.add(1, new GhostProjectileAttackGoal(this, 1.25D, 60, 2.0F));
-        this.goalSelector.add(3, new WanderAroundFarGoal(this, 1.0D, 1.0000001E-5F));
-        this.goalSelector.add(4, new LookAroundGoal(this));
-        this.targetSelector.add(1,
-                new GhostFollowTargetGoal(this, PlayerEntity.class, 10, true, false, (livingEntity) -> {
-                    if (livingEntity instanceof PlayerEntity) {
-                        boolean firstCheck = !this.world.isDay();
-                        int value = EntityComponents.GHOST_COOLDOWN.get(livingEntity).getValue();
-                        boolean secondCheck = value == 0;
-                        return firstCheck && secondCheck;
-                    }
-                    return false;
-                }));
     }
 
     public static DefaultAttributeContainer.Builder createGhostAttributes() {
@@ -91,10 +63,22 @@ public class GhostEntity extends GolemEntity implements RangedAttackMob {
                 .add(EntityAttributes.GENERIC_MOVEMENT_SPEED, 0.2D).add(EntityAttributes.GENERIC_FOLLOW_RANGE, 4.0D);
     }
 
-    public boolean hurtByWater() {
-        return false;
+    @Override
+    protected void initGoals() {
+        this.goalSelector.add(1, new GhostProjectileAttackGoal(this, 1.25D, 60, 2.0F));
+        this.goalSelector.add(3, new WanderAroundFarGoal(this, 1.0D, 1.0000001E-5F));
+        this.goalSelector.add(4, new LookAroundGoal(this));
+        this.targetSelector.add(1,
+                new GhostFollowTargetGoal(this, PlayerEntity.class, 10, true, false, (livingEntity) -> {
+                    if (livingEntity instanceof PlayerEntity) {
+                        int value = EntityComponents.GHOST_COOLDOWN.get(livingEntity).getValue();
+                        return !this.world.isDay() && value == 0;
+                    }
+                    return false;
+                }));
     }
 
+    @Override
     public void tickMovement() {
         super.tickMovement();
         if (!this.world.isClient) {
@@ -109,20 +93,53 @@ public class GhostEntity extends GolemEntity implements RangedAttackMob {
     @Override
     protected ActionResult interactMob(PlayerEntity player, Hand hand) {
         ItemStack stack = player.getStackInHand(hand);
-        if (!world.isDay() && stack.isFood() && EntityComponents.GHOST_COOLDOWN.get(player).getValue() == 0) {
+
+        if (world.isDay() || !stack.isFood()) {
+            return ActionResult.SUCCESS;
+        }
+
+        int cooldownValue = EntityComponents.GHOST_COOLDOWN.get(player).getValue();
+
+        if (cooldownValue == 0) {
             float saturation = stack.getItem().getFoodComponent().getSaturationModifier();
             int hunger = stack.getItem().getFoodComponent().getHunger();
             float aggregateScore = hunger * saturation;
 
+            EntityComponents.GHOST_COOLDOWN.get(player).resetValue();
+
             treatEntity(player, aggregateScore);
-            EntityComponents.GHOST_COOLDOWN.get(player).setValue(GhostCooldownIntComponent.GHOST_COOLDOWN_VALUE);
             stack.decrement(1);
         } else if (!player.world.isClient) {
-            int value = EntityComponents.GHOST_COOLDOWN.get(player).getValue();
-            player.sendMessage(new LiteralText("Cannot trick or treat for another " + value / 20 + " seconds."), false);
+            player.sendMessage(new LiteralText("Cannot trick or treat for another " + cooldownValue / 20 + " seconds."),
+                    false);
         }
 
         return ActionResult.SUCCESS;
+    }
+
+    @Override
+    protected void initDataTracker() {
+        super.initDataTracker();
+        this.dataTracker.startTracking(SHOOTING, false);
+    }
+
+    @Override
+    public void attack(LivingEntity target, float pullProgress) {
+    }
+
+    @Override
+    protected SoundEvent getAmbientSound() {
+        return SoundEvents.ENTITY_WITCH_AMBIENT;
+    }
+
+    @Override
+    protected SoundEvent getHurtSound(DamageSource source) {
+        return SoundEvents.ENTITY_DOLPHIN_HURT;
+    }
+
+    @Override
+    protected SoundEvent getDeathSound() {
+        return SoundEvents.ENTITY_TURTLE_DEATH_BABY;
     }
 
     @Environment(EnvType.CLIENT)
@@ -134,17 +151,8 @@ public class GhostEntity extends GolemEntity implements RangedAttackMob {
         this.dataTracker.set(SHOOTING, shooting);
     }
 
-    protected void initDataTracker() {
-        super.initDataTracker();
-        this.dataTracker.startTracking(SHOOTING, false);
-    }
-
-    @Override
-    public void attack(LivingEntity target, float pullProgress) {
-    }
-
     private void treatEntity(LivingEntity target, float aggregate) {
-        boolean shouldUseBadPotion = aggregate <= 3.5;
+        boolean shouldUseBadPotion = aggregate <= 3;
         int randomIndex = (int) (Math.random()
                 * (shouldUseBadPotion ? this.badPotions.length : this.goodPotions.length));
         Potion potion = shouldUseBadPotion ? this.badPotions[randomIndex] : this.goodPotions[randomIndex];
@@ -153,13 +161,14 @@ public class GhostEntity extends GolemEntity implements RangedAttackMob {
     }
 
     private void spreadFallOnGround() {
-        for (int l = 0; l < 4; ++l) {
-            int i = MathHelper.floor(this.getX() + (double) ((float) (l % 2 * 2 - 1) * 0.25F));
-            int j = MathHelper.floor(this.getY());
-            int k = MathHelper.floor(this.getZ() + (double) ((float) (l / 2 % 2 * 2 - 1) * 0.25F));
-            BlockPos blockPos = new BlockPos(i, j, k);
+        for (int surroundingBlocks = 0; surroundingBlocks < 4; ++surroundingBlocks) {
+            double surroundingOffset = (double) ((float) (surroundingBlocks % 2 * 2 - 1) * 0.25F);
+            int xPos = MathHelper.floor(this.getX() + surroundingOffset);
+            int yPos = MathHelper.floor(this.getY());
+            int zPos = MathHelper.floor(this.getZ() + surroundingOffset);
+            BlockPos blockPos = new BlockPos(xPos, yPos, zPos);
 
-            BlockState blockState = FallFest116.FALLEN_GRASS_BLOCK.getDefaultState().with(FallenGrassBlock.TYPE,
+            BlockState blockState = FallFest116.FALLEN_LEAVES_BLOCK.getDefaultState().with(FallenLeavesBlock.TYPE,
                     LeafType.typeForBiome(world.getBiome(blockPos).getCategory()));
 
             if ((this.world.getBlockState(blockPos).isAir() && blockState.canPlaceAt(this.world, blockPos))
@@ -181,30 +190,22 @@ public class GhostEntity extends GolemEntity implements RangedAttackMob {
                     BlockState blockState = this.world.getBlockState(newBlockPos);
                     if (blockState.getBlock() instanceof LeavesBlock) {
                         BlockState newBlockState = blockState.with(GhostEntity.FALLED, true);
-                        this.world.setBlockState(newBlockPos, newBlockState);
+                        world.setBlockState(newBlockPos, newBlockState);
                     }
                 }
             }
         }
     }
 
-    @Override
-    protected SoundEvent getAmbientSound() {
-        return SoundEvents.ENTITY_WITCH_AMBIENT;
-    }
+    private static Potion[] getPotionsForType(StatusEffectType type) {
+        List<Potion> potions = Registry.POTION.getEntries().stream().map(item -> item.getValue())
+                .filter(potion -> !potion.getEffects().isEmpty()).collect(Collectors.toList());
 
-    @Override
-    protected SoundEvent getHurtSound(DamageSource source) {
-        return SoundEvents.ENTITY_DOLPHIN_HURT;
-    }
+        Potion[] filteredPotions = potions.stream()
+                .filter(potion -> potion.getEffects().get(0).getEffectType().getType().equals(type))
+                .toArray(Potion[]::new);
 
-    @Override
-    protected SoundEvent getDeathSound() {
-        return SoundEvents.ENTITY_TURTLE_DEATH_BABY;
-    }
-
-    static {
-        SHOOTING = DataTracker.registerData(GhostEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
+        return filteredPotions;
     }
 
     private class GhostProjectileAttackGoal extends ProjectileAttackGoal {
@@ -232,7 +233,6 @@ public class GhostEntity extends GolemEntity implements RangedAttackMob {
     }
 
     private class GhostFollowTargetGoal extends FollowTargetGoal<PlayerEntity> {
-
         public GhostFollowTargetGoal(MobEntity mob, Class<PlayerEntity> targetClass, int reciprocalChance,
                 boolean checkVisibility, boolean checkCanNavigate, Predicate<LivingEntity> targetPredicate) {
             super(mob, targetClass, reciprocalChance, checkVisibility, checkCanNavigate, targetPredicate);

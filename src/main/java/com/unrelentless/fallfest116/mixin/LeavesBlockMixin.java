@@ -20,20 +20,19 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 
 @Mixin(LeavesBlock.class)
-public abstract class FallFestLeavesBlockColours extends Block {
+public abstract class LeavesBlockMixin extends Block {
 
-    public FallFestLeavesBlockColours(Settings settings) {
+    public LeavesBlockMixin(Settings settings) {
         super(settings);
     }
 
     @Inject(at = @At("TAIL"), method = "appendProperties(Lnet/minecraft/state/StateManager$Builder;)V")
-    private void injectFalledProperty(StateManager.Builder<Block, BlockState> builder, CallbackInfo info) {
+    private void injectAppendProperties(StateManager.Builder<Block, BlockState> builder, CallbackInfo info) {
         builder.add(GhostEntity.FALLED);
     }
 
     @Inject(at = @At("TAIL"), method = "randomTick(Lnet/minecraft/block/BlockState;Lnet/minecraft/server/world/ServerWorld;Lnet/minecraft/util/math/BlockPos;Ljava/util/Random;)V")
-    private void injectFalledPropertyToNeighbours(BlockState state, ServerWorld world, BlockPos pos, Random random,
-            CallbackInfo info) {
+    private void injectRandomTick(BlockState state, ServerWorld world, BlockPos pos, Random random, CallbackInfo info) {
         if (state.get(GhostEntity.FALLED) == true) {
             BlockPos.Mutable mutable = new BlockPos.Mutable();
             Direction[] var6 = AbstractBlock.FACINGS;
@@ -63,7 +62,7 @@ public abstract class FallFestLeavesBlockColours extends Block {
     }
 
     @Inject(at = @At("RETURN"), method = "<init>(Lnet/minecraft/block/AbstractBlock$Settings;)V")
-    private void initProperty(AbstractBlock.Settings settings, CallbackInfo info) {
+    private void injectInit(AbstractBlock.Settings settings, CallbackInfo info) {
         this.setDefaultState(this.getDefaultState().with(GhostEntity.FALLED, false));
     }
 }

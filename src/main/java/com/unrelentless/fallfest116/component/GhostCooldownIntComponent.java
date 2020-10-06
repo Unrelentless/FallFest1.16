@@ -1,4 +1,4 @@
-package com.unrelentless.fallfest116.components;
+package com.unrelentless.fallfest116.component;
 
 import net.minecraft.nbt.CompoundTag;
 
@@ -36,5 +36,10 @@ public class GhostCooldownIntComponent implements IntComponent {
     @Override
     public void writeToNbt(CompoundTag tag) {
         toTag(tag);
+    }
+
+    @Override
+    public void resetValue() {
+        this.value = GHOST_COOLDOWN_VALUE;
     }
 }

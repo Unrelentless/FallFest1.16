@@ -12,9 +12,7 @@ public class GhostEntityModel extends GhastEntityModel<GhostEntity> {
     public void render(MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green,
             float blue, float alpha) {
 
-        // translate model down
         matrices.translate(0, -1, 0);
         super.render(matrices, vertices, light, overlay, red, green, blue, alpha);
-
     }
 }

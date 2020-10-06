@@ -21,24 +21,27 @@ public class FallFest116Client implements ClientModInitializer {
 
     @Override
     public void onInitializeClient() {
+        // Entity Renderer
         EntityRendererRegistry.INSTANCE.register(FallFest116.GHOST, (dispatcher, context) -> {
             return new GhostEntityRenderer(dispatcher);
         });
 
-        BlockRenderLayerMap.INSTANCE.putBlock(FallFest116.FALLEN_GRASS_BLOCK, RenderLayer.getCutoutMipped());
+        // Block Renderer
+        BlockRenderLayerMap.INSTANCE.putBlock(FallFest116.FALLEN_LEAVES_BLOCK, RenderLayer.getCutoutMipped());
 
+        // Color
         ColorProviderRegistry.BLOCK.register((state, world, pos, tintIndex) -> {
             int colour = world != null && pos != null ? BiomeColors.getFoliageColor(world, pos)
                     : FoliageColors.getDefaultColor();
             int shiftedColour = 0xFF0000 | colour;
             return shiftedColour;
-        }, FallFest116.FALLEN_GRASS_BLOCK);
+        }, FallFest116.FALLEN_LEAVES_BLOCK);
 
         ColorProviderRegistry.ITEM.register((stack, tintIndex) -> {
-            return ColorProviderRegistry.BLOCK.get(FallFest116.FALLEN_GRASS_BLOCK).getColor(
-                    FallFest116.FALLEN_GRASS_BLOCK.getDefaultState(), (BlockRenderView) null, (BlockPos) null,
+            return ColorProviderRegistry.BLOCK.get(FallFest116.FALLEN_LEAVES_BLOCK).getColor(
+                    FallFest116.FALLEN_LEAVES_BLOCK.getDefaultState(), (BlockRenderView) null, (BlockPos) null,
                     tintIndex);
-        }, FallFest116.FALLEN_GRASS_BLOCK);
+        }, FallFest116.FALLEN_LEAVES_BLOCK);
 
         ColorProviderRegistry.BLOCK.register((state, world, pos, tintIndex) -> {
             if (state.get(GhostEntity.FALLED) == false) {

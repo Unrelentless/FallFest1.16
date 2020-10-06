@@ -1,4 +1,4 @@
-package com.unrelentless.fallfest116.components;
+package com.unrelentless.fallfest116.component;
 
 import com.unrelentless.fallfest116.FallFest116;
 

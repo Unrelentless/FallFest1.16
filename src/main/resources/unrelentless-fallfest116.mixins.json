@@ -4,10 +4,10 @@
   "package": "com.unrelentless.fallfest116.mixin",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
-    "FallfestPumpkinBlockMixin",
-    "FallFestLeavesBlockColours",
-    "FallFestSpawn",
-    "FallFestTickMixin"
+    "CarvedPumpkinBlockMixin",
+    "DefaultBiomeFeaturesMixin",
+    "LeavesBlockMixin",
+    "MinecraftServerMixin"
   ],
   "client": [],
   "injectors": {

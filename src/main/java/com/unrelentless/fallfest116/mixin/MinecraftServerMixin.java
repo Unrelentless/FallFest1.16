@@ -2,7 +2,7 @@ package com.unrelentless.fallfest116.mixin;
 
 import java.util.function.BooleanSupplier;
 
-import com.unrelentless.fallfest116.components.EntityComponents;
+import com.unrelentless.fallfest116.component.EntityComponents;
 
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -14,7 +14,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.PlayerManager;
 
 @Mixin(MinecraftServer.class)
-public class FallFestTickMixin {
+public class MinecraftServerMixin {
 
     @Shadow
     private PlayerManager playerManager;

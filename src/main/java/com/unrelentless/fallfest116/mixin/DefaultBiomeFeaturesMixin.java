@@ -14,12 +14,12 @@ import net.minecraft.world.biome.SpawnSettings;
 import net.minecraft.world.gen.feature.DefaultBiomeFeatures;
 
 @Mixin(DefaultBiomeFeatures.class)
-public class FallFestSpawn {
+public class DefaultBiomeFeaturesMixin {
 
     private static final EntityType<GhostEntity> GHOST = FallFest116.GHOST;
 
     @Inject(at = @At("HEAD"), method = "addFarmAnimals(Lnet/minecraft/world/biome/SpawnSettings$Builder;)V")
-    private static void addFarmAnimals(SpawnSettings.Builder builder, CallbackInfo info) {
+    private static void injectAddFarmAnimals(SpawnSettings.Builder builder, CallbackInfo info) {
         builder.spawn(SpawnGroup.CREATURE, new SpawnSettings.SpawnEntry(GHOST, 100, 1, 1));
     }
 }

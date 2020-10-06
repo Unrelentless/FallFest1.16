@@ -1,8 +1,8 @@
 package com.unrelentless.fallfest116;
 
-import com.unrelentless.fallfest116.block.FallenGrassBlock;
-import com.unrelentless.fallfest116.components.EntityComponents;
-import com.unrelentless.fallfest116.components.GhostCooldownIntComponent;
+import com.unrelentless.fallfest116.block.FallenLeavesBlock;
+import com.unrelentless.fallfest116.component.EntityComponents;
+import com.unrelentless.fallfest116.component.GhostCooldownIntComponent;
 import com.unrelentless.fallfest116.entity.GhostEntity;
 
 import nerdhub.cardinal.components.api.event.ComponentRegisteredCallback;
@@ -32,18 +32,22 @@ public class FallFest116 implements ModInitializer {
 			FabricEntityTypeBuilder.<GhostEntity>create(SpawnGroup.CREATURE, GhostEntity::new).trackRangeBlocks(8)
 					.dimensions(EntityDimensions.fixed(0.7F, 1.9F)).build());
 
-	public static final FallenGrassBlock FALLEN_GRASS_BLOCK = new FallenGrassBlock(
+	public static final FallenLeavesBlock FALLEN_LEAVES_BLOCK = new FallenLeavesBlock(
 			FabricBlockSettings.of(Material.LEAVES).strength(0.2F).sounds(BlockSoundGroup.GRASS).nonOpaque()
 					.blockVision((state, world, pos) -> false));
 
 	@Override
 	public void onInitialize() {
-		Registry.register(Registry.BLOCK, new Identifier(MODID, "fallen_leaves"), FALLEN_GRASS_BLOCK);
-		Registry.register(Registry.ITEM, new Identifier(MODID, "fallen_leaves"),
-				new BlockItem(FALLEN_GRASS_BLOCK, new Item.Settings().group(ItemGroup.BUILDING_BLOCKS)));
 
+		// Blocks
+		Registry.register(Registry.BLOCK, new Identifier(MODID, "fallen_leaves"), FALLEN_LEAVES_BLOCK);
+		Registry.register(Registry.ITEM, new Identifier(MODID, "fallen_leaves"),
+				new BlockItem(FALLEN_LEAVES_BLOCK, new Item.Settings().group(ItemGroup.BUILDING_BLOCKS)));
+
+		// Entities
 		FabricDefaultAttributeRegistry.register(GHOST, GhostEntity.createGhostAttributes());
 
+		// Cardinal Components
 		EntityComponentCallback.event(PlayerEntity.class).register((provider, components) -> {
 			components.put(EntityComponents.GHOST_COOLDOWN, new GhostCooldownIntComponent());
 		});

@@ -23,7 +23,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.At;
 
 @Mixin(CarvedPumpkinBlock.class)
-public class FallfestPumpkinBlockMixin {
+public class CarvedPumpkinBlockMixin {
 
     private BlockPattern ghostPattern;
 
@@ -32,8 +32,8 @@ public class FallfestPumpkinBlockMixin {
         BlockPattern.Result result = this.getGhostPattern().searchAround(world, pos);
 
         if (result != null) {
-            for (int k = 0; k < this.getGhostPattern().getHeight(); ++k) {
-                CachedBlockPosition cachedBlockPosition = result.translate(0, k, 0);
+            for (int patternHeight = 0; patternHeight < this.getGhostPattern().getHeight(); ++patternHeight) {
+                CachedBlockPosition cachedBlockPosition = result.translate(0, patternHeight, 0);
                 world.setBlockState(cachedBlockPosition.getBlockPos(), Blocks.AIR.getDefaultState(), 2);
                 world.syncWorldEvent(2001, cachedBlockPosition.getBlockPos(),
                         Block.getRawIdFromState(cachedBlockPosition.getBlockState()));
