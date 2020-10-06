@@ -36,6 +36,7 @@ import net.minecraft.potion.Potion;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.state.property.BooleanProperty;
+import net.minecraft.text.LiteralText;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
@@ -116,7 +117,11 @@ public class GhostEntity extends GolemEntity implements RangedAttackMob {
             treatEntity(player, aggregateScore);
             EntityComponents.GHOST_COOLDOWN.get(player).setValue(GhostCooldownIntComponent.GHOST_COOLDOWN_VALUE);
             stack.decrement(1);
+        } else if (!player.world.isClient) {
+            int value = EntityComponents.GHOST_COOLDOWN.get(player).getValue();
+            player.sendMessage(new LiteralText("Cannot trick or treat for another " + value / 20 + " seconds."), false);
         }
+
         return ActionResult.SUCCESS;
     }
 
@@ -136,7 +141,6 @@ public class GhostEntity extends GolemEntity implements RangedAttackMob {
 
     @Override
     public void attack(LivingEntity target, float pullProgress) {
-
     }
 
     private void treatEntity(LivingEntity target, float aggregate) {

@@ -19,11 +19,11 @@ public class FallFestTickMixin {
     @Shadow
     private PlayerManager playerManager;
 
+    // TERRIBLE IDEA!
     @Inject(at = @At("TAIL"), method = "tick(Ljava/util/function/BooleanSupplier;)V")
     private void injectTick(BooleanSupplier shouldKeepTicking, CallbackInfo info) {
         playerManager.getPlayerList().forEach(player -> {
             int previousValue = EntityComponents.GHOST_COOLDOWN.get(player).getValue();
-            System.out.println(previousValue);
             EntityComponents.GHOST_COOLDOWN.get(player).setValue(previousValue <= 0 ? 0 : previousValue - 1);
         });
     }
