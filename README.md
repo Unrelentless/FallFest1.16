@@ -1,9 +1,14 @@
-# Fabric Example Mod
+# FallFest 1.16.3 - Ghost
+![](web/ghost.png)
+Mod made for [Fallfest 1.16](https://modfest.net/fallfest/1.16/).
 
-## Setup
+## Ghost entity
+Adds a Fallfest "Ghost" entity to world spawn as well as crafting recipe with 2 cobwebs and a carved pumpkin.
 
-For setup instructions please see the [fabric wiki page](https://fabricmc.net/wiki/tutorial:setup) that relates to the IDE that you are using.
+## Interaction with the world
+The Ghost spreads Fallen Leaves while walking around (similar to snow golem).
+The Ghost turns leaves around it into their fall variant.
 
-## License
-
-This template is available under the CC0 license. Feel free to learn from it and incorporate it in your own projects.
+## Interaction with the player
+The Ghost will follow the player around at night in an effort to "Trick or Treat" with them.
+If the player treats the ghost (gives them something edible) they will receive a treat (positive status effect) or a trick (negative status effect) in return, depending on the food given.
