@@ -5,7 +5,6 @@ import com.unrelentless.fallfest116.component.EntityComponents;
 import com.unrelentless.fallfest116.component.GhostCooldownIntComponent;
 import com.unrelentless.fallfest116.entity.GhostEntity;
 
-import nerdhub.cardinal.components.api.event.ComponentRegisteredCallback;
 import nerdhub.cardinal.components.api.event.EntityComponentCallback;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;

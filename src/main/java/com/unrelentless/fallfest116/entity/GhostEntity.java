@@ -2,11 +2,14 @@ package com.unrelentless.fallfest116.entity;
 
 import java.util.List;
 import java.util.function.Predicate;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import com.unrelentless.fallfest116.FallFest116;
 import com.unrelentless.fallfest116.block.FallenLeavesBlock;
 import com.unrelentless.fallfest116.component.EntityComponents;
+import com.unrelentless.fallfest116.mixin.StatusEffectMixin;
 import com.unrelentless.fallfest116.util.LeafType;
 
 import net.fabricmc.api.Environment;
@@ -26,6 +29,8 @@ import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
+import net.minecraft.entity.effect.StatusEffect;
+import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffectType;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.passive.GolemEntity;
@@ -202,7 +207,8 @@ public class GhostEntity extends GolemEntity implements RangedAttackMob {
                 .filter(potion -> !potion.getEffects().isEmpty()).collect(Collectors.toList());
 
         Potion[] filteredPotions = potions.stream()
-                .filter(potion -> potion.getEffects().get(0).getEffectType().getType().equals(type))
+                .filter(potion -> ((StatusEffectMixin) potion.getEffects().get(0).getEffectType()).getStatusEffectType()
+                        .equals(type))
                 .toArray(Potion[]::new);
 
         return filteredPotions;
