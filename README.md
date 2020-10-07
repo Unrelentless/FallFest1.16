@@ -1,4 +1,4 @@
-# FallFest 1.16.3 - Ghost
+# FallFest 1.16 - Ghost
 ![](web/ghost.png)
 Mod made for [Fallfest 1.16](https://modfest.net/fallfest/1.16/).
 
