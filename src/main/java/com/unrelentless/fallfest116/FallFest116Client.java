@@ -1,7 +1,5 @@
 package com.unrelentless.fallfest116;
 
-import java.util.Random;
-
 import com.unrelentless.fallfest116.client.render.entity.GhostEntityRenderer;
 import com.unrelentless.fallfest116.entity.GhostEntity;
 import com.unrelentless.fallfest116.util.FallenColour;
