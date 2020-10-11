@@ -20,6 +20,6 @@ public class DefaultBiomeFeaturesMixin {
 
     @Inject(at = @At("HEAD"), method = "addFarmAnimals(Lnet/minecraft/world/biome/SpawnSettings$Builder;)V")
     private static void injectAddFarmAnimals(SpawnSettings.Builder builder, CallbackInfo info) {
-        builder.spawn(SpawnGroup.CREATURE, new SpawnSettings.SpawnEntry(GHOST, 100, 1, 1));
+        builder.spawn(SpawnGroup.CREATURE, new SpawnSettings.SpawnEntry(GHOST, 25, 1, 1));
     }
 }
