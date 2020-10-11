@@ -1,7 +1,10 @@
 package com.unrelentless.fallfest116;
 
+import java.util.Random;
+
 import com.unrelentless.fallfest116.client.render.entity.GhostEntityRenderer;
 import com.unrelentless.fallfest116.entity.GhostEntity;
+import com.unrelentless.fallfest116.util.FallenColour;
 
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.Environment;
@@ -33,7 +36,7 @@ public class FallFest116Client implements ClientModInitializer {
         ColorProviderRegistry.BLOCK.register((state, world, pos, tintIndex) -> {
             int colour = world != null && pos != null ? BiomeColors.getFoliageColor(world, pos)
                     : FoliageColors.getDefaultColor();
-            int shiftedColour = 0xFF0000 | colour;
+            int shiftedColour = state.get(FallenColour.COLOUR).colourForFoliageColour(colour);
             return shiftedColour;
         }, FallFest116.FALLEN_LEAVES_BLOCK);
 
@@ -51,7 +54,7 @@ public class FallFest116Client implements ClientModInitializer {
 
             int colour = world != null && pos != null ? BiomeColors.getFoliageColor(world, pos)
                     : FoliageColors.getDefaultColor();
-            int shiftedColour = 0xFF0000 | colour;
+            int shiftedColour = state.get(FallenColour.COLOUR).colourForFoliageColour(colour);
             return shiftedColour;
         }, Blocks.OAK_LEAVES, Blocks.JUNGLE_LEAVES, Blocks.ACACIA_LEAVES, Blocks.DARK_OAK_LEAVES);
 
@@ -61,7 +64,7 @@ public class FallFest116Client implements ClientModInitializer {
             }
 
             int colour = FoliageColors.getBirchColor();
-            int shiftedColour = 0xFF0000 | colour;
+            int shiftedColour = state.get(FallenColour.COLOUR).colourForFoliageColour(colour);
             return shiftedColour;
         }, Blocks.BIRCH_LEAVES);
 
@@ -71,7 +74,7 @@ public class FallFest116Client implements ClientModInitializer {
             }
 
             int colour = FoliageColors.getSpruceColor();
-            int shiftedColour = 0xFF0000 | colour;
+            int shiftedColour = state.get(FallenColour.COLOUR).colourForFoliageColour(colour);
             return shiftedColour;
         }, Blocks.SPRUCE_LEAVES);
     }

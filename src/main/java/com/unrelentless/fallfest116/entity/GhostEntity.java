@@ -1,6 +1,7 @@
 package com.unrelentless.fallfest116.entity;
 
 import java.util.List;
+import java.util.Random;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -8,6 +9,7 @@ import com.unrelentless.fallfest116.FallFest116;
 import com.unrelentless.fallfest116.block.FallenLeavesBlock;
 import com.unrelentless.fallfest116.component.EntityComponents;
 import com.unrelentless.fallfest116.mixin.StatusEffectMixin;
+import com.unrelentless.fallfest116.util.FallenColour;
 import com.unrelentless.fallfest116.util.LeafType;
 
 import net.fabricmc.api.Environment;
@@ -169,8 +171,9 @@ public class GhostEntity extends GolemEntity implements RangedAttackMob {
             int zPos = MathHelper.floor(this.getZ() + surroundingOffset);
             BlockPos blockPos = new BlockPos(xPos, yPos, zPos);
 
-            BlockState blockState = FallFest116.FALLEN_LEAVES_BLOCK.getDefaultState().with(FallenLeavesBlock.TYPE,
-                    LeafType.typeForBiome(world.getBiome(blockPos).getCategory()));
+            BlockState blockState = FallFest116.FALLEN_LEAVES_BLOCK.getDefaultState()
+                    .with(FallenLeavesBlock.TYPE, LeafType.typeForBiome(world.getBiome(blockPos).getCategory()))
+                    .with(FallenColour.COLOUR, FallenColour.COLOURS[new Random().nextInt(3)]);
 
             if ((this.world.getBlockState(blockPos).isAir() && blockState.canPlaceAt(this.world, blockPos))
                     || this.world.getBlockState(blockPos).equals(Blocks.SNOW.getDefaultState())) {
@@ -190,8 +193,12 @@ public class GhostEntity extends GolemEntity implements RangedAttackMob {
                     BlockPos newBlockPos = new BlockPos(newXPos, newYPos, newZPos);
                     BlockState blockState = this.world.getBlockState(newBlockPos);
                     if (blockState.getBlock() instanceof LeavesBlock) {
-                        BlockState newBlockState = blockState.with(GhostEntity.FALLED, true);
-                        world.setBlockState(newBlockPos, newBlockState);
+                        if (!blockState.get(GhostEntity.FALLED)) {
+
+                            BlockState newBlockState = blockState.with(GhostEntity.FALLED, true)
+                                    .with(FallenColour.COLOUR, FallenColour.COLOURS[new Random().nextInt(3)]);
+                            world.setBlockState(newBlockPos, newBlockState);
+                        }
                     }
                 }
             }

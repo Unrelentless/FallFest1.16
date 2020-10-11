@@ -1,13 +1,18 @@
 package com.unrelentless.fallfest116.block;
 
+import java.util.Random;
+
+import com.unrelentless.fallfest116.util.FallenColour;
 import com.unrelentless.fallfest116.util.LeafType;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.ShapeContext;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.pathing.NavigationType;
 import net.minecraft.item.ItemPlacementContext;
+import net.minecraft.item.ItemStack;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.EnumProperty;
 import net.minecraft.util.math.BlockPos;
@@ -15,6 +20,7 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
+import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
 import net.minecraft.world.WorldView;
 
@@ -24,6 +30,8 @@ public class FallenLeavesBlock extends Block {
 
     public FallenLeavesBlock(Settings settings) {
         super(settings);
+        int randomInt = new Random().nextInt(3);
+        System.out.println(randomInt);
         this.setDefaultState(this.stateManager.getDefaultState().with(TYPE, LeafType.OAK));
     }
 
@@ -70,6 +78,13 @@ public class FallenLeavesBlock extends Block {
     }
 
     @Override
+    public void onPlaced(World world, BlockPos pos, BlockState state, LivingEntity placer, ItemStack itemStack) {
+        FallenColour colour = FallenColour.COLOURS[new Random().nextInt(3)];
+        this.setDefaultState(this.stateManager.getDefaultState().with(FallenColour.COLOUR, colour));
+        super.onPlaced(world, pos, state.with(FallenColour.COLOUR, colour), placer, itemStack);
+    }
+
+    @Override
     public boolean canPlaceAt(BlockState state, WorldView world, BlockPos pos) {
         BlockState blockState = world.getBlockState(pos.down());
         if (!blockState.isOf(Blocks.ICE) && !blockState.isOf(Blocks.PACKED_ICE) && !blockState.isOf(Blocks.BARRIER)) {
@@ -106,6 +121,6 @@ public class FallenLeavesBlock extends Block {
 
     @Override
     protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
-        builder.add(TYPE);
+        builder.add(TYPE, FallenColour.COLOUR);
     }
 }

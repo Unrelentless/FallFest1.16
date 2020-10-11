@@ -3,6 +3,7 @@ package com.unrelentless.fallfest116.mixin;
 import java.util.Random;
 
 import com.unrelentless.fallfest116.entity.GhostEntity;
+import com.unrelentless.fallfest116.util.FallenColour;
 
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -28,7 +29,7 @@ public abstract class LeavesBlockMixin extends Block {
 
     @Inject(at = @At("TAIL"), method = "appendProperties(Lnet/minecraft/state/StateManager$Builder;)V")
     private void injectAppendProperties(StateManager.Builder<Block, BlockState> builder, CallbackInfo info) {
-        builder.add(GhostEntity.FALLED);
+        builder.add(GhostEntity.FALLED, FallenColour.COLOUR);
     }
 
     @Inject(at = @At("TAIL"), method = "randomTick(Lnet/minecraft/block/BlockState;Lnet/minecraft/server/world/ServerWorld;Lnet/minecraft/util/math/BlockPos;Ljava/util/Random;)V")
@@ -46,7 +47,8 @@ public abstract class LeavesBlockMixin extends Block {
                     if (!blockState.get(GhostEntity.FALLED)) {
                         BlockState blockState2 = blockState
                                 .getStateForNeighborUpdate(direction.getOpposite(), state, world, mutable, pos)
-                                .with(GhostEntity.FALLED, true);
+                                .with(GhostEntity.FALLED, true)
+                                .with(FallenColour.COLOUR, FallenColour.COLOURS[new Random().nextInt(3)]);
                         world.setBlockState(mutable, blockState2);
                     }
                 }
