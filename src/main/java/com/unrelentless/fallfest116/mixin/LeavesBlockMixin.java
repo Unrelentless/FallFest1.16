@@ -34,7 +34,7 @@ public abstract class LeavesBlockMixin extends Block {
 
     @Inject(at = @At("TAIL"), method = "randomTick(Lnet/minecraft/block/BlockState;Lnet/minecraft/server/world/ServerWorld;Lnet/minecraft/util/math/BlockPos;Ljava/util/Random;)V")
     private void injectRandomTick(BlockState state, ServerWorld world, BlockPos pos, Random random, CallbackInfo info) {
-        if (state.get(GhostEntity.FALLED) == true) {
+        if (state.get(GhostEntity.FALLED)) {
             BlockPos.Mutable mutableBlockPos = new BlockPos.Mutable();
             Direction[] directions = AbstractBlock.FACINGS;
 
