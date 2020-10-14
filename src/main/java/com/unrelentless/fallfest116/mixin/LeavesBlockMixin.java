@@ -45,11 +45,11 @@ public abstract class LeavesBlockMixin extends Block {
 
                 if (blockState.getBlock() instanceof LeavesBlock) {
                     if (!blockState.get(GhostEntity.FALLED)) {
-                        BlockState blockState2 = blockState
+                        BlockState updatedBlockState = blockState
                                 .getStateForNeighborUpdate(direction.getOpposite(), state, world, mutableBlockPos, pos)
                                 .with(GhostEntity.FALLED, true)
                                 .with(FallenColour.COLOUR, FallenColour.COLOURS[new Random().nextInt(3)]);
-                        world.setBlockState(mutableBlockPos, blockState2);
+                        world.setBlockState(mutableBlockPos, updatedBlockState);
                     }
                 }
             }
