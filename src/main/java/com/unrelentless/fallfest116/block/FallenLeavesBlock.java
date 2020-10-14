@@ -30,8 +30,6 @@ public class FallenLeavesBlock extends Block {
 
     public FallenLeavesBlock(Settings settings) {
         super(settings);
-        int randomInt = new Random().nextInt(3);
-        System.out.println(randomInt);
         this.setDefaultState(this.stateManager.getDefaultState().with(TYPE, LeafType.OAK));
     }
 

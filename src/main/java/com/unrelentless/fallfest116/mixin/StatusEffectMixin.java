@@ -6,7 +6,7 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.entity.effect.StatusEffectType;
 
-// This is ridiculous
+// This is ridiculous hack to get status effect on the server side
 @Mixin(StatusEffect.class)
 public interface StatusEffectMixin {
 
