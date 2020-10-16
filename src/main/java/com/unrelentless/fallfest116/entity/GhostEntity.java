@@ -160,7 +160,8 @@ public class GhostEntity extends GolemEntity implements RangedAttackMob {
                 * (shouldUseBadPotion ? this.badPotions.length : this.goodPotions.length));
         Potion potion = shouldUseBadPotion ? this.badPotions[randomIndex] : this.goodPotions[randomIndex];
 
-        potion.getEffects().forEach(effect -> target.applyStatusEffect(effect));
+        potion.getEffects().forEach(effect -> target.addStatusEffect(effect));
+
     }
 
     private void spreadFallOnGround() {

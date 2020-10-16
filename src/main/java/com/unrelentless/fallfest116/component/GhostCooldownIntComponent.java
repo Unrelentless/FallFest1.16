@@ -3,7 +3,7 @@ package com.unrelentless.fallfest116.component;
 import net.minecraft.nbt.CompoundTag;
 
 public class GhostCooldownIntComponent implements IntComponent {
-    public static final int GHOST_COOLDOWN_VALUE = 3600;
+    public static final int GHOST_COOLDOWN_VALUE = 600;
 
     public int value = 0;
 
