@@ -38,19 +38,18 @@ public abstract class LeavesBlockMixin extends Block {
             BlockPos.Mutable mutableBlockPos = new BlockPos.Mutable();
             Direction[] directions = AbstractBlock.FACINGS;
 
-            for (int eachDirection = 0; eachDirection < directions.length; ++eachDirection) {
-                Direction direction = directions[eachDirection];
+            for (Direction direction : directions) {
                 mutableBlockPos.set(pos, direction);
                 BlockState blockState = world.getBlockState(mutableBlockPos);
 
-                if (blockState.getBlock() instanceof LeavesBlock) {
-                    if (!blockState.get(GhostEntity.FALLED)) {
-                        BlockState updatedBlockState = blockState
-                                .getStateForNeighborUpdate(direction.getOpposite(), state, world, mutableBlockPos, pos)
-                                .with(GhostEntity.FALLED, true)
-                                .with(FallenColour.COLOUR, FallenColour.COLOURS[new Random().nextInt(3)]);
-                        world.setBlockState(mutableBlockPos, updatedBlockState);
-                    }
+                boolean isNormalLeafBlock = blockState.getBlock() instanceof LeavesBlock
+                        && !blockState.get(GhostEntity.FALLED);
+                if (isNormalLeafBlock) {
+                    BlockState updatedBlockState = blockState
+                            .getStateForNeighborUpdate(direction.getOpposite(), state, world, mutableBlockPos, pos)
+                            .with(GhostEntity.FALLED, true)
+                            .with(FallenColour.COLOUR, FallenColour.COLOURS[new Random().nextInt(3)]);
+                    world.setBlockState(mutableBlockPos, updatedBlockState);
                 }
             }
         }
