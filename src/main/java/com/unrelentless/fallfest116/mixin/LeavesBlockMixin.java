@@ -34,23 +34,22 @@ public abstract class LeavesBlockMixin extends Block {
 
     @Inject(at = @At("TAIL"), method = "randomTick(Lnet/minecraft/block/BlockState;Lnet/minecraft/server/world/ServerWorld;Lnet/minecraft/util/math/BlockPos;Ljava/util/Random;)V")
     private void injectRandomTick(BlockState state, ServerWorld world, BlockPos pos, Random random, CallbackInfo info) {
-        if (state.get(GhostEntity.FALLED) == true) {
-            BlockPos.Mutable mutable = new BlockPos.Mutable();
-            Direction[] var6 = AbstractBlock.FACINGS;
-            int var7 = var6.length;
+        if (state.get(GhostEntity.FALLED)) {
+            BlockPos.Mutable mutableBlockPos = new BlockPos.Mutable();
+            Direction[] directions = AbstractBlock.FACINGS;
 
-            for (int var8 = 0; var8 < var7; ++var8) {
-                Direction direction = var6[var8];
-                mutable.set(pos, direction);
-                BlockState blockState = world.getBlockState(mutable);
-                if (blockState.getBlock() instanceof LeavesBlock) {
-                    if (!blockState.get(GhostEntity.FALLED)) {
-                        BlockState blockState2 = blockState
-                                .getStateForNeighborUpdate(direction.getOpposite(), state, world, mutable, pos)
-                                .with(GhostEntity.FALLED, true)
-                                .with(FallenColour.COLOUR, FallenColour.COLOURS[new Random().nextInt(3)]);
-                        world.setBlockState(mutable, blockState2);
-                    }
+            for (Direction direction : directions) {
+                mutableBlockPos.set(pos, direction);
+                BlockState blockState = world.getBlockState(mutableBlockPos);
+
+                boolean isNormalLeafBlock = blockState.getBlock() instanceof LeavesBlock
+                        && !blockState.get(GhostEntity.FALLED);
+                if (isNormalLeafBlock) {
+                    BlockState updatedBlockState = blockState
+                            .getStateForNeighborUpdate(direction.getOpposite(), state, world, mutableBlockPos, pos)
+                            .with(GhostEntity.FALLED, true)
+                            .with(FallenColour.COLOUR, FallenColour.COLOURS[new Random().nextInt(3)]);
+                    world.setBlockState(mutableBlockPos, updatedBlockState);
                 }
             }
         }
