@@ -8,7 +8,7 @@ sourceCompatibility = JavaVersion.VERSION_1_8
 targetCompatibility = JavaVersion.VERSION_1_8
 
 archivesBaseName = project.archives_base_name
-version = project.mod_version
+version = project.version + "-" + project.mod_version
 group = project.maven_group
 
 repositories {
@@ -90,27 +90,33 @@ publishing {
 	}
 }
 
-curseforge {
-  apiKey = project.hasProperty("curseForgeApiKey") ? project.curseForgeApiKey : ""
-  project {
-    id = '411694'
-    changelog = 'Fix: double hand swing when feeding ghost on servers.'
-    releaseType = 'release'
-	addGameVersion "1.16.2"
-    addGameVersion "1.16.2"
-	addGameVersion "Java 8"
+def curseRelations = {
+	requiredLibrary 'fabric'
+	embeddedLibrary 'cardinal-components'
+}
 
-	relations {
-		requiredLibrary 'fabric'
-		embeddedLibrary 'cardinal-components'
+curseforge {
+    if (project.hasProperty('curseForgeApiKey'))
+        apiKey = project.curseForgeApiKey
+
+    project {
+        id = "411694"
+        changelog = 'Fix: double hand swing when feeding ghost on servers.'
+        releaseType = 'release'
+
+        relations curseRelations
+
+		addGameVersion "1.16.2"
+    	addGameVersion "1.16.2"
+		addGameVersion "Java 8"
 
 		afterEvaluate {
-    		mainArtifact(remapJar.output)
+    		mainArtifact(remapJar)
 			uploadTask.dependsOn(remapJar)
 		}
-	}
-	options {
-		forgeGradelIntegration = false
-	}
-  }
+    }
+
+    options {
+        forgeGradleIntegration = false
+    }
 }
