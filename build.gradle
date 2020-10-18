@@ -88,3 +88,27 @@ publishing {
 		// mavenLocal()
 	}
 }
+
+curseforge {
+  apiKey = project.hasProperty("curseForgeApiKey") ? project.curseForgeApiKey : ""
+  project {
+    id = '411694'
+    changelog = 'Fix: double hand swing when feeding ghost on servers.'
+    releaseType = 'release'
+	addGameVersion "1.16.2"
+    addGameVersion "1.16.2"
+	addGameVersion "Java 8"
+
+	relations {
+		requiredLibrary 'fabric'
+		embeddedLibrary 'cardinal-components'
+
+		afterEvaluate {
+    		mainArtifact(remapJar.output)
+			uploadTask.dependsOn(remapJar)
+			}
+	}
+	options {
+		forgeGradelIntegration = false
+	}
+  }

@@ -95,6 +95,10 @@ public class GhostEntity extends GolemEntity implements RangedAttackMob {
 
     @Override
     protected ActionResult interactMob(PlayerEntity player, Hand hand) {
+        if (world.isClient) {
+            return ActionResult.CONSUME;
+        }
+
         ItemStack stack = player.getStackInHand(hand);
 
         if (world.isDay() || !stack.isFood()) {
@@ -161,7 +165,6 @@ public class GhostEntity extends GolemEntity implements RangedAttackMob {
         Potion potion = shouldUseBadPotion ? this.badPotions[randomIndex] : this.goodPotions[randomIndex];
 
         potion.getEffects().forEach(effect -> target.addStatusEffect(effect));
-
     }
 
     private void spreadFallOnGround() {
