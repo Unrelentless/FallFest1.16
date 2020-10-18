@@ -74,7 +74,6 @@ curseforge {
     	addGameVersion "1.16.2"
 		addGameVersion "Java 8"
 
-
 		afterEvaluate {
 			mainArtifact(remapJar)		
 			uploadTask.dependsOn(remapJar)
@@ -83,6 +82,5 @@ curseforge {
 
     options {
         forgeGradleIntegration = false
-		debug = true
     }
 }
