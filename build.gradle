@@ -106,9 +106,10 @@ curseforge {
 		afterEvaluate {
     		mainArtifact(remapJar.output)
 			uploadTask.dependsOn(remapJar)
-			}
+		}
 	}
 	options {
 		forgeGradelIntegration = false
 	}
   }
+}
