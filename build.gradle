@@ -90,28 +90,28 @@ publishing {
 	}
 }
 
-def curseRelations = {
-	requiredLibrary 'fabric'
-	embeddedLibrary 'cardinal-components'
-}
-
 curseforge {
-    if (project.hasProperty('curseForgeApiKey'))
-        apiKey = project.curseForgeApiKey
+    if (project.hasProperty('curse_forge_api_key')) {
+		apiKey = project.curse_forge_api_key
+	}
 
     project {
-        id = "411694"
+        id = project.curse_id
         changelog = 'Fix: double hand swing when feeding ghost on servers.'
         releaseType = 'release'
 
-        relations curseRelations
+        relations {
+			requiredLibrary 'fabric'
+			embeddedLibrary 'cardinal-components'
+		}
 
-		addGameVersion "1.16.2"
-    	addGameVersion "1.16.2"
-		addGameVersion "Java 8"
+		addGameVersion '1.16.2'
+    	addGameVersion '1.16.2'
+		addGameVersion 'Java 8'
+
 
 		afterEvaluate {
-        	mainArtifact(file("${project.buildDir}/libs/${archivesBaseName}-${version}.jar"))		
+			mainArtifact(remapJar)		
 			uploadTask.dependsOn(remapJar)
 		}
     }
