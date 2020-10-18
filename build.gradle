@@ -130,5 +130,8 @@ githubRelease {
 	targetCommitish = "master"
 	body = "Fix: double hand swing when feeding ghost on servers."
 
-	releaseAssets.from("${project.buildDir}/libs")
+  releaseAssets.from('build/libs')
+
+  FilenameFilter filter = { dir, filename -> filename.contains("${archives_base_name}-${version}.jar") }
+  releaseAssets = jar.destinationDir.listFiles filter 
 }
