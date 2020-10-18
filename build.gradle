@@ -8,7 +8,7 @@ sourceCompatibility = JavaVersion.VERSION_1_8
 targetCompatibility = JavaVersion.VERSION_1_8
 
 archivesBaseName = project.archives_base_name
-version = project.version + "-" + project.mod_version
+version = project.minecraft_version + "-" + project.mod_version
 group = project.maven_group
 
 repositories {
@@ -111,7 +111,7 @@ curseforge {
 		addGameVersion "Java 8"
 
 		afterEvaluate {
-    		mainArtifact(remapJar)
+        	mainArtifact(file("${project.buildDir}/libs/${archivesBaseName}-${version}.jar"))		
 			uploadTask.dependsOn(remapJar)
 		}
     }
