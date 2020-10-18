@@ -33,6 +33,19 @@ dependencies {
 	modImplementation "io.github.onyxstudios.Cardinal-Components-API:cardinal-components-entity:${cardinal_components}"
 }
 
+processResources {
+	inputs.property "version", project.version
+
+	from(sourceSets.main.resources.srcDirs) {
+		include "fabric.mod.json"
+		expand "version": project.version
+	}
+
+	from(sourceSets.main.resources.srcDirs) {
+		exclude "fabric.mod.json"
+	}
+}
+
 task sourcesJar(type: Jar) {
     from sourceSets.main.allJava
     archiveClassifier.set('sources')
